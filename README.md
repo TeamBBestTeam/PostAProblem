@@ -8,10 +8,18 @@ A petition website to build awareness and have your voice heard  with the suppor
 
 ---
 
-## Posts Page
+## About Page
 
 ---
 
-## Detail Page
+## Petition Posts Page
+
+---
+
+## Forum Page
+
+---
+
+## Member Page
 
 ---
