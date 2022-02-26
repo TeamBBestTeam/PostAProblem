@@ -8,7 +8,7 @@
 html{
     font-size: 14px;
     font-family: 'Titillium Web', sans-serif;
-    background-color:rgb(0,0,0);
+    background-color:#2C2C2C;
     color:#FEFEFE;
 }
 
@@ -143,10 +143,13 @@ header{
     max-height: fit-content;
     margin-right:10px;
 }
+.close-icon{
+    margin-right: auto;
+}
 
 .close-icon i{
     font-size:40px;
-    float: left;
+    margin-right: auto;
     cursor: pointer;
 }
 
@@ -189,10 +192,12 @@ header{
 
 .brand{
     font-size:60px;
-    display: inline-block;
+    display: flex;
     font-family:aquire;
 }
-
+.login {
+   margin-left: auto;
+}
 /*Navbar for the smartphones*/
 @media screen and (max-width: 460px){
     .navigation{
@@ -386,6 +391,81 @@ footer{
 .note span{
     font-size: 20px;
     margin-block: 5px;
+}
+
+
+.login button{
+    border-radius: 5px;
+    background: #2C2C2C;
+    box-shadow: inset 15px 15px 30px #1c1c1c,
+                inset -15px -15px 30px #3c3c3c;;
+    color:#ffff;
+			
+			/* i {
+				color: lighten(#252120, 20%);
+				text-shadow:
+					-1px -1px darken(#252120, 15%),
+					1px 1px lighten(#252120, 15%);
+			} */
+			
+			/* &.active {
+				
+				> i {
+					color: desaturate(darken(#D1FAD7, 35%), 50%);
+				}
+			}
+			
+			&:active {
+				animation: press 50ms linear;
+				animation-fill-mode: forwards;
+			}
+			
+			&:before {
+				content: '';
+				position: absolute;
+				z-index: -1;
+				top: 0; right: 0; bottom: 0; left: 0;
+				margin: -5px;
+				border: 1px solid lighten(#252120, 5%);
+				border-radius: inherit;
+			}
+			
+			&:after {
+				content: '';
+				position: absolute;
+				z-index: -2;
+				top: 0; right: 0; bottom: 0; left: 0;
+				margin: -5px;
+				border-radius: inherit;
+				background: 
+					linear-gradient(
+						-30deg,
+						lighten(#252120, 2%) 0%,
+						darken(#252120, 2%) 100%
+					);
+			} */
+		}
+	
+
+
+@keyframes press {
+	100% {
+		box-shadow:
+			-1px -1px 10px 2px darken(#252120, 7%),
+			3px 3px 10px 3px lighten(#252120, 4%);
+	}
+}
+@keyframes depress {
+	0% {
+		box-shadow:
+			-1px -1px 10px 2px darken(#252120, 7%),
+			3px 3px 10px 3px lighten(#252120, 4%);
+	}
+	100% {
+		box-shadow:
+			7px 7px 20px 5px darken(#252120, 8%),
+			-3px -3px 20px 3px lighten(#252120, 12%);
+	}
 }
 
 
