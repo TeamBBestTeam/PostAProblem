@@ -411,6 +411,9 @@ footer{
     margin-block: 5px;
 }
 
+/* ########################################### */
+/*            login.html                       */
+/* ########################################### */
 
 .login button{
     border-radius: 5px;
@@ -443,6 +446,47 @@ footer{
 	}
 }
 
+.loginBox{
+    width: 250px;
+    height: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    margin: 150px auto;
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    background-color: rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(209, 213, 219, 0.3);
+
+}
+.loginBox input{
+    margin: 5px;
+}
+.loginPage{
+    display: flex;
+    justify-content: center;
+    /* margin: 150px auto;    */
+}
+.loginBox input{
+    border-radius: 5px;
+}
+body, html{
+    height: 100vh;
+    margin: 0px;
+}
+body .loginPage{
+    background-image: url('./assets/images/loginPost.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    height: 100%;
+    width: 100%;
+    background-position: center;
+    
+
+}
 
 /* ########################################### */
 /*            index.html                      */
