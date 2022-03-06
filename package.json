@@ -1,0 +1,19 @@
+{
+  "name": "postaproblem",
+  "version": "1.0.0",
+  "description": "A petition website to build awareness and have your voice heard  with the support a community who is ready to help make a change.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TeamBBestTeam/PostAProblem.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TeamBBestTeam/PostAProblem/issues"
+  },
+  "homepage": "https://github.com/TeamBBestTeam/PostAProblem#readme"
+}
