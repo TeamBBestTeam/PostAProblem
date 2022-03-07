@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -p tsconfig.release.json"
+    "build": ""
   },
   "repository": {
     "type": "git",
@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/TeamBBestTeam/PostAProblem/issues"
   },
-  "homepage": "https://github.com/TeamBBestTeam/PostAProblem#readme"
+  "homepage": "https://github.com/TeamBBestTeam/PostAProblem#readme",
+  "devDependencies": {
+    "firebase-tools": "^10.2.2"
+  }
 }
