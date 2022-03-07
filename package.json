@@ -4,7 +4,8 @@
   "description": "A petition website to build awareness and have your voice heard  with the support a community who is ready to help make a change.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -p tsconfig.release.json"
   },
   "repository": {
     "type": "git",
