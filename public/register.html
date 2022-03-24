@@ -123,7 +123,7 @@
                 const data = snapshot.val().username;
                 console.log(data);
                 //add username to welcome title 
-                document.getElementById('welcome_title').getElementsByTagName('span')[0].innerHTML = 'Welcome, ' + data;
+                document.getElementById('welcome_title').getElementsByTagName('span')[0].innerHTML = 'Welcome, ' + user.email;
             });
         
         } 
@@ -153,7 +153,7 @@
             console.log("not logged in");
         }
         });
-       
+       alert("Information Saved");
     });
 
   
