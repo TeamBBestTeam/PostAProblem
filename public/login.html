@@ -69,7 +69,7 @@
         .then((userCredential) => {
             // Signed in 
             const user = userCredential.user;
-            alert('user created');
+            //alert('user created');
 
             //save created user to database
             set(ref(db, 'users/' + user.uid),{
@@ -107,7 +107,7 @@
             //bring user to home page when logging in successfully
             auth.onAuthStateChanged(user => {
                 if(user) {
-                    window.location = 'register.html';
+                    window.location = 'index.html';
                 }
             });
         // ...
