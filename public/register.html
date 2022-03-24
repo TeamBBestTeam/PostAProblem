@@ -116,10 +116,17 @@
 
     auth.onAuthStateChanged(function(user) {
         if (user != null) {
-            console.log(user.email);
-            //change title to greet logged in user...prob a better way to do this
-            document.getElementById('welcome_title').getElementsByTagName('span')[0].innerHTML = 'Welcome, ' + user.email;       
-         } 
+            //reference users stored in database
+            var userRef = ref(db, "users/" + user.uid);
+            onValue(userRef, (snapshot) => {
+                //get username of currently signed in user
+                const data = snapshot.val().username;
+                console.log(data);
+                //add username to welcome title 
+                document.getElementById('welcome_title').getElementsByTagName('span')[0].innerHTML = 'Welcome, ' + data;
+            });
+        
+        } 
          else {
             console.log("not logged in");
         }
