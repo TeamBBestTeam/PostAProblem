@@ -52,20 +52,26 @@
         <div class="home">
             <h1 class="title_area", id="welcome_title">
                 <span class="welcome_text" >
-                    Welcome
+                    
                 </span>
             </h1>
 
         </div>
-        <div class="card">
-            Start A Petition
-            <img src="./assets/images/petitionBox.png" alt="petition" width= "250px";>
-        </div>
-        <div class="Testing user info">
-                <h1>
-                Testing User Info
-                </h1>
-                <input type="button" name="" value="Get User Info" id="test">
+        <form class="userinputarea", action="register.html">
+            <label for="fname">First Name</label>
+            <input type="text" id="fname" name="firstname" placeholder="First Name">
+          
+            <label for="lname">Last Name</label>
+            <input type="text" id="lname" name="lastname" placeholder="Last Name">
+
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Username">
+          
+            <label for="country">Country</label>
+            <input type="text" id="country" name="country" placeholder="Country">
+          
+            <input type="button" value="Submit" id="submitBtn">
+          </form>
         </div>
 
         
@@ -106,6 +112,7 @@
     const auth = getAuth();
     const user = auth.currentUser;
     var testBtn = document.getElementById('test');
+    var submitBtn = document.getElementById('submitBtn');
 
     auth.onAuthStateChanged(function(user) {
         if (user != null) {
@@ -119,8 +126,26 @@
         });
 
   
-    testBtn.addEventListener("click", (e) => {
-        
+    //get users information and save to firebase
+    submitBtn.addEventListener("click", (e) => {
+        var fName = document.getElementById('fname').value;
+        var lName = document.getElementById('lname').value;
+        var username = document.getElementById('username').value;
+        var country = document.getElementById('country').value;
+        auth.onAuthStateChanged(function(user) {
+        if (user != null) {
+            set(ref(db, 'users/' + user.uid),{
+                email: user.email,
+                firstname: fName,
+                lastname: lName,
+                username: username,
+                country: country
+            })      
+        } 
+         else {
+            console.log("not logged in");
+        }
+        });
        
     });
 
