@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="toast/toast.css">
     <script src="login.js"></script>
 </head>
 <body>
@@ -24,7 +25,7 @@
     </div>
     
 
-    
+    <script src="toast/toast.js"></script>
 </body>
 
 
@@ -87,7 +88,8 @@
         .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
-            alert(errorMessage);
+            //display firebase error as more readable error message
+            Toast.show(errorCode, 'error');
             // ..
         });
   });
@@ -96,13 +98,11 @@
   logInBtn.addEventListener("click", (e) => {
     var email = document.getElementById('email').value;
     var password = document.getElementById('password').value;
-    //var location = window.location.href = "index.html";
 
     signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
-        // Signed in 
+            // Signed in 
             const user = userCredential.user;
-            //alert("login successful");
 
             //bring user to home page when logging in successfully
             auth.onAuthStateChanged(user => {
@@ -115,7 +115,9 @@
         .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
-            alert(errorMessage);
+            
+            //alert user of incorrect login credentials
+            Toast.show('Invalid email or password','error');
         });
 
   });
