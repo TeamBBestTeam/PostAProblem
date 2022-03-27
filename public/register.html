@@ -120,8 +120,8 @@
             var userRef = ref(db, "users/" + user.uid);
             onValue(userRef, (snapshot) => {
                 //get username of currently signed in user
-                const data = snapshot.val().username;
-                console.log(data);
+                //const data = snapshot.val().username;
+                //console.log(data);
                 //add username to welcome title 
                 document.getElementById('welcome_title').getElementsByTagName('span')[0].innerHTML = 'Welcome, ' + user.email;
             });
