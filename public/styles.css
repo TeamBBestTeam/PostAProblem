@@ -738,5 +738,36 @@ a.card {
   }
 
 
+  /* ########################################### */
+  /*            petitionform.html                */
+  /* ########################################### */
+
+  #petitionTextInput{
+    width: 75%;
+    min-height: 200px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  #petitionTitleInput{
+    width: 25%;
+  }
+
+  #postPetition{
+    width: 10%;
+    background-color: #04AA6D;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  #postPetition:hover {
+    background-color: #45a049;
+  }
+
+
 
 
