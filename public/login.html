@@ -89,6 +89,7 @@
             const errorCode = error.code;
             const errorMessage = error.message;
             //display firebase error as more readable error message
+            alert(errorMessage);
             Toast.show(errorCode, 'error');
             // ..
         });
