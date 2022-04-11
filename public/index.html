@@ -27,9 +27,7 @@
             <a class="bar-icon" id="iconBar" onclick="hideIconBar()"><i class="fa fa-bars"></i></a>
             <div class="brand">Post-A-Problem</div>
             <div class="login">
-                <button>
-                    <a href="login.html">Login</a>
-                </button>
+                <button id="login/logout">Login</button>
                 <button>
                     <a href="login.html">Sign Up</a>
                 </button>
@@ -186,12 +184,13 @@
         <span>&copy;  The Best Team | All Rights Reserved</span>
     </footer>
     <script src="main.js"></script>
+
 </body>
 <script type="module">
     // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-analytics.js";
-    import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/9.6.8/firebase-auth.js";
+    import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} from "https://www.gstatic.com/firebasejs/9.6.8/firebase-auth.js";
   
     // TODO: Add SDKs for Firebase products that you want to use
     // https://firebase.google.com/docs/web/setup#available-libraries
@@ -218,6 +217,9 @@
     const auth = getAuth();
     const user = auth.currentUser;
 
+    var logInBtn = document.getElementById('login/logout');
+
+    //checks if a user is logged in
     auth.onAuthStateChanged(function(user) {
         if (user != null) {
             //reference users stored in database
@@ -228,13 +230,43 @@
                 console.log(data);
                 //add username to welcome title 
                 document.getElementById('welcome_title').getElementsByTagName('span')[0].innerHTML = 'Welcome, ' + data;
+                
+                //if user is logged in, login button should instead display: "logout" and log user out
+                logInBtn.innerText= "Logout";
+
             });
         
         } 
          else {
             console.log("not logged in");
+            logInBtn.innerText= "Login";
         }
         });
+
+        logInBtn.addEventListener("click", (e) => {
+            auth.onAuthStateChanged(function(user) {
+                //if user is signed in, log current user out
+                if(user != null) {
+                    
+                    signOut(auth).then(() => {
+                    //notify user that they have successfully logged out
+                    alert('User logged out');
+                    //refresh page
+                    window.location = 'index.html';
+                    }).catch((error) => {
+                    // An error happened.
+                    alert('error');
+                    });
+                }
+            
+                //otherwise bring user to login screen to login
+                else{
+                    window.location = 'login.html';
+                }
+            });
+        });
+
+    
 
   
   </script>
