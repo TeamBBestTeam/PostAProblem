@@ -34,7 +34,6 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-analytics.js";
   import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/9.6.8/firebase-auth.js";
-
   // TODO: Add SDKs for Firebase products that you want to use
   // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -87,10 +86,20 @@
         })
         .catch((error) => {
             const errorCode = error.code;
-            const errorMessage = error.message;
-            //display firebase error as more readable error message
-            alert(errorMessage);
-            Toast.show(errorCode, 'error');
+            var message;
+            //get error message to be displayed on toast
+            if(email=='' && password=='')
+                message = "Please complete all fields";
+            else if(email=='')
+                message = "Can't leave email field blank";
+            else if(password=='')
+                message = "Can't leave password field blank";
+
+            else 
+                message = getErrorMessage(errorCode);
+            
+            //alert user of incorrect login credentials
+            Toast.show(message,'error');
             // ..
         });
   });
@@ -115,10 +124,23 @@
         })
         .catch((error) => {
             const errorCode = error.code;
-            const errorMessage = error.message;
+            var message;
+            //get error message to be displayed on toast
+            if(email=='' && password=='')
+                message = "Please complete all fields";
+            else if(email=='')
+                message = "Can't leave email field blank";
+            else if(password=='')
+                message = "Can't leave password field blank";
+
+            else 
+                message = getErrorMessage(errorCode);
+
+            console.log(errorCode);
+            console.log(message);
             
             //alert user of incorrect login credentials
-            Toast.show('Invalid email or password','error');
+            Toast.show(message,'error');
         });
 
   });
