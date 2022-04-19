@@ -107,21 +107,27 @@ function findLastReply(record) {
 /**
    * Fetches post information from Firebase
    * Calls the AddRow function for each post
-   * @param query {string} [query=""]
+   * @param query {string} [query=""] query to run
 **/
 function fetchPosts(query=""){
-	console.log("Running");
 	// Get petitions from database
 	get(child(dbRef, `petitions`)).then((snapshot) => {
 		// Check if the petitions exist
 		if (snapshot.exists()) {
 			// Store each row
 			var y = 1;
+
+			// *******************************************************************
+			// TODO : 1) Replace or edit forEach to loop over posts matching query
+			// 	  2) Only show a certain number of posts per page
+			//	  3) Implement page buttons
+			// *******************************************************************
+
 			// Loop over each petition in the snapshot
 		 	snapshot.forEach(function (childSnapshot) {
 				// Load data from petition
-            	var value = childSnapshot.val();
-            	var user = value.username;
+            			var value = childSnapshot.val();
+            			var user = value.username;
 				var title = value.petitionTitle;
 				var views = value.views;
 
