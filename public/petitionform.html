@@ -46,7 +46,7 @@
             </h1>
 
         </div>
-        <form id="createApetition" class="petitioninputarea", action="petitionform.html">
+        <form id="createApetition" class="petitioninputarea", action="index.html">
             <label for="petitionTitleLabel">Petition Title</label>
             <br>
             <input type="text" id="petitionTitleInput" name="petitionTitleInput" placeholder="Petition Title">
@@ -55,10 +55,9 @@
             <div class="petition-area" id="petition-area">
               <textarea type="text" id="petitionTextInput" name="petitionTextInput" placeholder="Write you petition here..."></textarea>
             </div>
-            <input type="submit" class="postButton" width=20% value="Post" id="postPetition">
+            <input type="submit" class="postButton" width=20% value="Post" id="postPetition" onclick="petitionSubmit()">
           </form>
         </div>
-
 
     <footer>
         <span>&copy;  The Best Team | All Rights Reserved</span>
@@ -107,7 +106,7 @@
                 //get username of currently signed in user
                 const data = snapshot.val().username;
                 console.log(data);
-                //add username to welcome title
+                // Create a petition welcome title
                 document.getElementById('create_petition_title').getElementsByTagName('span')[0].innerHTML = 'Create a Petition, ' + data;
             });
 
@@ -142,12 +141,13 @@
 
       // Save petition to firebase
       function savePetition(title, text){
+
         // Petition entry
         const petition = {
-          comments: [],
           petitionText: text,
           petitionTitle: title,
-          username: "",
+          username: data,
+          views: 0,
           votes: 0
         };
 
