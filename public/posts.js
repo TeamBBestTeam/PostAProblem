@@ -112,14 +112,13 @@ function findLastReply(record) {
 **/
 function queryEverything(record, query=""){
 	// If the query is not found in the post title or text
-	if (!record.petitionTitle.includes(query) && 
-		!record.petitionText.includes(query)){
-		
+	if (!record.petitionTitle.toLowerCase().includes(query) && 
+		!record.petitionText.toLowerCase().includes(query)){
 		// Check if the post has comments
 		if (record.comments && record.comments.comment1){
 			for (var n = 0; n < Object.values(record.comments).length; n++){
-				var author = Object.values(record.comments)[n].author;
-				var commentText = Object.values(record.comments)[n].comment;
+				var author = Object.values(record.comments)[n].author.toLowerCase();
+				var commentText = Object.values(record.comments)[n].comment.toLowerCase();
 				// Check comment and comment author for queried text
 				if (commentText.includes(query) || 
 					author.includes(query)){
@@ -140,7 +139,8 @@ function queryEverything(record, query=""){
    * @return {bool} True if title contains query, otherwise false
 **/
 function queryByTitle(record, query=""){
-	return record.petitionTitle.includes(query) ? true : false;
+	return record.petitionTitle.toLowerCase()
+		.includes(query) ? true : false;
 }
 
 /**
@@ -151,7 +151,8 @@ function queryByTitle(record, query=""){
    * @return {bool} True if description contains query, otherwise false
 **/
 function queryByDescription(record, query=""){
-	return record.petitionText.includes(query) ? true : false;
+	return record.petitionText.toLowerCase()
+		.includes(query) ? true : false;
 }
 
 /**
@@ -280,9 +281,10 @@ function fetchPostByQuery(){
 
 	
 	// Fetch new posts, update page
-	fetchPosts(search, searchType);
+	fetchPosts(search.toLowerCase(), searchType);
 	// Allow user to click the button again
 	searchButton.addEventListener("click", fetchPostByQuery);
+	console.log("Searching", search.toLowerCase());
 }
 
 // Allow user to click magnifying glass to make query
