@@ -264,44 +264,57 @@ function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=10
 	});
 }
 
+
 /**
-   * Fetches information from a query
-   * Called when the search button is clicked
-   * Calls the fetchPost function with the info in the search box
+	* Handles loading data from URL queries and creating search-related events
+	* Calls fetchPosts with information passed in the URL
 **/
-function fetchPostByQuery(){
-	// Get search button from html
+function onPageLoad(){
+		
+	// Allow user to click magnifying glass search button to make query
 	var searchButton = document.getElementById('searchBtn');
-
-	// Remove the clickable event listener (prevents button spamming)
-	searchButton.removeEventListener("click", fetchPostByQuery);
-	// Get search query and type of query
-	var search = document.getElementById('searchBar').value;
-	var searchType = document.getElementById('dropdown').value;
-
-	
-	// Fetch new posts, update page
-	fetchPosts(search.toLowerCase(), searchType);
-	// Allow user to click the button again
 	searchButton.addEventListener("click", fetchPostByQuery);
-	console.log("Searching", search.toLowerCase());
-}
-
-// Allow user to click magnifying glass to make query
-var searchButton = document.getElementById('searchBtn');
-searchButton.addEventListener("click", fetchPostByQuery);
 
 
-// Allow queries from index.html
-if (typeof query !== "undefined" && typeof queryType !== "undefined" ) {
-	alert(query + " " + queryType);
-	document.getElementById('searchBar').value = query;
-	document.getElementById('dropdown').value = queryType;
+	// Store type default query information
+	var queryType = "Everything";
+	var query = "";
+	var url = window.location.href;
 
+
+	// Allow queries to be parsed
+	// Must be in format: .../posts.html?query="query"-by="queryType"
+	if (url.includes("posts.html?"){
+		if (url.includes("query=") && url.includes("-by=")){
+			
+			// URL is consistent with format
+			const queryString = window.location.search;
+
+			// Parse URL for query information
+			query = queryString.split("-")[0].split("query=")[1];
+			queryType = queryString.split("-")[1].split("by=")[1];
+			
+			// Fix bad query types:
+			if (!["Everything", "Titles", "Descriptions"].includes(queryType)){
+				queryType = "Everything";
+			}
+			
+			// If query found, have searchbar and dropdown box store the information
+			if (typeof query !== "undefined" && 
+				typeof queryType !== "undefined" ) {
+					document.getElementById('searchBar').value = query;
+					document.getElementById('dropdown').value = queryType;
+			}
+		}
+		else {
+			// Query is not in proper format- Bring to 404 page
+			console.error(`URL search parameter format mismatch: ${url}`);
+			document.location.href = "404.html";
+		}
+	}
+	console.log(query, queryType);
+	// Fetch posts
 	fetchPosts(query, queryType);
 }
-else {
-	alert("No query found");
-	fetchPosts();
-}
-	
+
+onPageLoad();

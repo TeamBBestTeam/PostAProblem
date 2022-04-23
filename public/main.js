@@ -30,19 +30,18 @@ function petitionSubmit() {
   location.href = "index.html";
 }
 
-
+//Searches
 function fetchPosts() {
-	searchBtn.removeEventListener("click", fetchPosts);
 	// Get search query and type of query
 	var search = document.getElementById('searchBar').value;
 	var searchType = document.getElementById('dropdown').value;
-	alert("Going to posts.html...");
-	window.location = "posts.html";
+	
+	// Redirect user to posts.html
+	if (search != "" && search != " " && ["Everything","Titles","Descriptions"].includes(searchType)){
+		window.location.href = `posts.html?query=${search}-by=${searchType}`;
+	}
 }
 
-var url = window.location.pathname;
-if(url.substring(url.lastIndexOf('/')+1) == 'index.html') {
-	var searchBtn = document.getElementById("searchBtn");
-	searchBtn.addEventListener("click", fetchPosts);
-}
+var searchBtn = document.getElementById("searchBtn");
+searchBtn.addEventListener("click", fetchPosts);
 
