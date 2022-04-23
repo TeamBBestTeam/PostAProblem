@@ -269,7 +269,7 @@ function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=10
 	* Handles loading data from URL queries and creating search-related events
 	* Calls fetchPosts with information passed in the URL
 **/
-function onPageLoad(){
+function loadSearch(){
 		
 	// Store type default query information
 	var queryType = "Everything";
@@ -286,8 +286,8 @@ function onPageLoad(){
 			const queryString = window.location.search;
 
 			// Parse URL for query information
-			query = queryString.split("-")[0].split("query=")[1];
-			queryType = queryString.split("-")[1].split("by=")[1];
+			query = decodeURI(queryString.split("-")[0].split("query=")[1]);
+			queryType = decodeURI(queryString.split("-")[1].split("by=")[1]);
 			
 			// Fix bad query types:
 			if (!["Everything", "Titles", "Descriptions"].includes(queryType)){
@@ -311,4 +311,4 @@ function onPageLoad(){
 	fetchPosts(query, queryType);
 }
 
-onPageLoad();
+loadSearch();
