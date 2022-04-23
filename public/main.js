@@ -29,3 +29,20 @@ function petitionSubmit() {
   alert("Your petition has been created.");
   location.href = "index.html";
 }
+
+
+function fetchPosts() {
+	searchBtn.removeEventListener("click", fetchPosts);
+	// Get search query and type of query
+	var search = document.getElementById('searchBar').value;
+	var searchType = document.getElementById('dropdown').value;
+
+	window.location = "posts.html";
+}
+
+var url = window.location.pathname;
+if(url.substring(url.lastIndexOf('/')+1) == 'index.html') {
+	var searchBtn = document.getElementById("searchBtn");
+	searchBtn.addEventListener("click", fetchPosts);
+}
+

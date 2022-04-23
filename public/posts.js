@@ -292,4 +292,16 @@ var searchButton = document.getElementById('searchBtn');
 searchButton.addEventListener("click", fetchPostByQuery);
 
 
-fetchPosts();
+// Allow queries from index.html
+if (typeof query !== "undefined" && typeof queryType !== "undefined" ) {
+	alert(query + " " + queryType);
+	document.getElementById('searchBar').value = query;
+	document.getElementById('dropdown').value = queryType;
+
+	fetchPosts(query, queryType);
+}
+else {
+	alert("No query found");
+	fetchPosts();
+}
+	
