@@ -36,7 +36,7 @@ function fetchPosts() {
 	// Get search query and type of query
 	var search = document.getElementById('searchBar').value;
 	var searchType = document.getElementById('dropdown').value;
-
+	alert("Going to posts.html...");
 	window.location = "posts.html";
 }
 
