@@ -269,7 +269,7 @@ function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=10
 	* Handles loading data from URL queries and creating search-related events
 	* Calls fetchPosts with information passed in the URL
 **/
-function onPageLoad(){
+function loadSearch(){
 		
 	// Store type default query information
 	var queryType = "Everything";
@@ -311,4 +311,4 @@ function onPageLoad(){
 	fetchPosts(query, queryType);
 }
 
-onPageLoad();
+loadSearch();
