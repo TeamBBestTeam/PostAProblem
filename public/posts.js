@@ -271,11 +271,6 @@ function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=10
 **/
 function onPageLoad(){
 		
-	// Allow user to click magnifying glass search button to make query
-	var searchButton = document.getElementById('searchBtn');
-	searchButton.addEventListener("click", fetchPostByQuery);
-
-
 	// Store type default query information
 	var queryType = "Everything";
 	var query = "";
