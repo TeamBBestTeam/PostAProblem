@@ -286,8 +286,8 @@ function loadSearch(){
 			const queryString = window.location.search;
 
 			// Parse URL for query information
-			query = queryString.split("-")[0].split("query=")[1];
-			queryType = queryString.split("-")[1].split("by=")[1];
+			query = decodeURI(queryString.split("-")[0].split("query=")[1]);
+			queryType = decodeURI(queryString.split("-")[1].split("by=")[1]);
 			
 			// Fix bad query types:
 			if (!["Everything", "Titles", "Descriptions"].includes(queryType)){
