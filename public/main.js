@@ -33,8 +33,8 @@ function petitionSubmit() {
 //Searches
 function fetchPosts() {
 	// Get search query and type of query
-	var search = document.getElementById('searchBar').value;
-	var searchType = document.getElementById('dropdown').value;
+	var search = encodeURI(document.getElementById('searchBar').value);
+	var searchType = encodeURI(document.getElementById('dropdown').value);
 	
 	// Redirect user to posts.html
 	if (search != "" && search != " " && ["Everything","Titles","Descriptions"].includes(searchType)){
