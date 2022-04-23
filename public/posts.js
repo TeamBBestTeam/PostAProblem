@@ -284,7 +284,7 @@ function onPageLoad(){
 
 	// Allow queries to be parsed
 	// Must be in format: .../posts.html?query="query"-by="queryType"
-	if (url.includes("posts.html?"){
+	if (url.includes("posts.html?")){
 		if (url.includes("query=") && url.includes("-by=")){
 			
 			// URL is consistent with format
