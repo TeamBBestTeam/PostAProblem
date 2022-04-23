@@ -256,7 +256,7 @@ function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=10
 			});
 		}
 		else {
-			console.log("No data available");
+			// No data available
 			return;
 		}
 	}).catch((error) => {
@@ -312,7 +312,6 @@ function onPageLoad(){
 			document.location.href = "404.html";
 		}
 	}
-	console.log(query, queryType);
 	// Fetch posts
 	fetchPosts(query, queryType);
 }
