@@ -89,7 +89,7 @@
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    import {getDatabase, ref, set, child, update, remove, onValue, push}
+    import {getDatabase, ref, set, child, update, remove, onValue, push, get}
     from "https://www.gstatic.com/firebasejs/9.6.8/firebase-database.js";
 
     const db = getDatabase();
@@ -107,7 +107,9 @@
                 const data = snapshot.val().username;
                 console.log(data);
                 // Create a petition welcome title
-                document.getElementById('create_petition_title').getElementsByTagName('span')[0].innerHTML = 'Create a Petition, ' + data;
+                document.getElementById('create_petition_title')
+					.getElementsByTagName('span')[0]
+					.innerHTML = 'Create a Petition, ' + data;
             });
 
         }
@@ -126,12 +128,21 @@
         // Get values
         var pTitle = document.getElementById('petitionTitleInput').value;
         var pText = document.getElementById('petitionTextInput').value;
+		var uid = auth.currentUser.uid;
+		// Get username from user id
+	    get(child(ref(db), `/users/${uid}`)).then((snapshot) => {
+			if (snapshot.exists()) {
+				var username = snapshot.val().username;
+				console.log("User:", username);
+				console.log(pTitle);
+				console.log(pText);
 
-        console.log(pTitle);
-        console.log(pText);
+				// Save petition
+				savePetition(pTitle, pText, username);
+			}
+		});
 
-        // Save petition
-        savePetition(pTitle, pText);
+
       }
 
       // Get form values
@@ -140,20 +151,20 @@
       }
 
       // Save petition to firebase
-      function savePetition(title, text){
-
+      function savePetition(title, text, user){
+		
         // Petition entry
         const petition = {
           petitionText: text,
           petitionTitle: title,
-          username: data,
+          username: user,
           views: 0,
-          votes: 0
+          votes: {0:""}
         };
 
         // Get a key for a new Petition
         const newPetitionKey = push(child(ref(db), 'petitions')).key;
-
+		
         const updates = {};
         updates['/petitions/' + newPetitionKey] = petition;
 

@@ -13,13 +13,10 @@ function showIconBar(){
     navigation.classList.add("hide");
 }
 
-//Comment
-function showComment(){
-    var commentArea = document.getElementById("comment-area");
-    commentArea.classList.remove("hide");
-}
-
 //Reply
+/**
+	* Displays reply area
+**/
 function showReply(){
     var replyArea = document.getElementById("reply-area");
     replyArea.classList.remove("hide");
@@ -43,5 +40,6 @@ function fetchPosts() {
 }
 
 var searchBtn = document.getElementById("searchBtn");
-searchBtn.addEventListener("click", fetchPosts);
-
+if (searchBtn !== null) {
+	searchBtn.addEventListener("click", fetchPosts);
+}
