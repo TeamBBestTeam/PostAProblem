@@ -148,12 +148,14 @@ function addPost(y, postId, author, title, text, replyAmount, views, votes, stat
                 </div>
                 <div class="content">
                     <h3 style="max-width:600px;
-    word-wrap:break-word;"><a href="petition.html?id=${postId}">${title}</a></h3>
+                      word-wrap:break-word;">
+                      <a href="petition.html?id=${postId}">${title}</a>
+                    </h3>
                     <br>
-					<hr>
+					          <hr>
                     <br><br>
                     <p style="max-width:600px;
-    word-wrap:break-word;">${text}</p>
+                      word-wrap:break-word;">${text}</p>
                     <div class="signingButton">
                         <button class="signButton" id="sign${y}">Sign</button>
                         <var name="signTotal" id="signTotal${y}">${votes}</var>
