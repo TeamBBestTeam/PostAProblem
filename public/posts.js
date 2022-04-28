@@ -212,7 +212,6 @@ function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=2)
 				}
 				// Only display posts from startY to startY + amountOfPosts
 				else if (y >= startY-1) {
-					console.log(y);
 					// Load data from petition
 	            	var value = childSnapshot.val();
 					var postId = childSnapshot.key;
