@@ -32,7 +32,6 @@ const dbRef = ref(getDatabase());
    * @param {string} postId Unique identifier for the post
 */
 function addRow(y, user, title, replyAmount, views, lastReplyDate, lastReplyUser, statusImg, postId) {
-	console.log(title);
 	// Create row for this entry
 	const tableRow = document.createElement('div');
 	tableRow.className = 'table-row';
