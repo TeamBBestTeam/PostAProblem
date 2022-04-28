@@ -32,7 +32,6 @@ const dbRef = ref(getDatabase());
    * @param {string} postId Unique identifier for the post
 */
 function addRow(y, user, title, replyAmount, views, lastReplyDate, lastReplyUser, statusImg, postId) {
-	console.log(title);
 	// Create row for this entry
 	const tableRow = document.createElement('div');
 	tableRow.className = 'table-row';
@@ -212,7 +211,6 @@ function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=2)
 				}
 				// Only display posts from startY to startY + amountOfPosts
 				else if (y >= startY-1) {
-					console.log(y);
 					// Load data from petition
 	            	var value = childSnapshot.val();
 					var postId = childSnapshot.key;
