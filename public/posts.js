@@ -32,6 +32,7 @@ const dbRef = ref(getDatabase());
    * @param {string} postId Unique identifier for the post
 */
 function addRow(y, user, title, replyAmount, views, lastReplyDate, lastReplyUser, statusImg, postId) {
+	console.log(title);
 	// Create row for this entry
 	const tableRow = document.createElement('div');
 	tableRow.className = 'table-row';
@@ -159,27 +160,28 @@ function queryByDescription(record, query=""){
 
 /**
    * Fetches status picture from images, given the date of the last reply
-   * @param {Date} [lastReplyDate=0] Date of last reply
+   * @param {Date} Date of last reply
    * @return {string} filename of status icon image
 **/
-function getStatusImage(lastReplyDate=0){
-	const today = new Date();
-	
-	if (lastReplyDate > today.getDate() - 1/4){
+function getStatusImage(lastReplyDate){
+	const hoursElapsed = (new Date().getTime() - lastReplyDate.getTime()) / 3600000;
+
+	if (hoursElapsed < 6){
 		// In the last 6 hours
 		return "fa fa-rocket";
 	}
-	else if (lastReplyDate > today.getDate() - 1){
-		// Since yesterday
+	else if (hoursElapsed < 24){
+		// In the last 24 hours
 		return "fa fa-fire";
 	}
-	else if (lastReplyDate > today.getDate() - 7){
+	else if (hoursElapsed < 168){
 		// In the last week
 		return "fa fa-book";
 	}
 	// Longer than a week
 	return "fa fa-frown-o";
 }
+
 
 /**
    * Fetches post information from Firebase
@@ -189,7 +191,7 @@ function getStatusImage(lastReplyDate=0){
    * @param startY {int} [startY=1] Post in query to start at
    * @param amountOfPosts {int} [amountOfPosts=10] Amount of posts to display
 **/
-function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=10){
+function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=2){
 	// Clear current petitions listed on page
 	document.getElementById('container').innerHTML = "";
 	
@@ -198,66 +200,89 @@ function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=10
 		// Check if the petitions exist
 		if (snapshot.exists()) {
 			// Store row/petition number in query
-			var y = startY;
+			var y = 0;
+			var totalPetitions = 0;
+			// Count total number of petitions from query
+			snapshot.forEach(function (childSnapshot) {totalPetitions++;});
 			// Loop over each petition in the snapshot
 		 	snapshot.forEach(function (childSnapshot) {	
 				// Only display amountOfPosts posts on this page
-				if (y >= startY + amountOfPosts) { 
+				if (y >= (startY-1) + amountOfPosts) { 
 					return;
 				}
-								
-				// Load data from petition
-            	var value = childSnapshot.val();
-				var postId = childSnapshot.key;
-				
-
-				// Only display posts that contain the query in selected content
-				if (query != ""){
-					if (queryType == "Everything" && !queryEverything(value, query)){
-						return;
+				// Only display posts from startY to startY + amountOfPosts
+				else if (y >= startY-1) {
+					console.log(y);
+					// Load data from petition
+	            	var value = childSnapshot.val();
+					var postId = childSnapshot.key;
+					
+	
+					// Only display posts that contain the query in selected content
+					if (query != ""){
+						if (queryType == "Everything" && !queryEverything(value, query)){
+							return;
+						}
+						else if (queryType == "Titles" && !queryByTitle(value, query)){
+							return;
+						}
+						else if (queryType == "Description" && !queryByDescription(value, query)){
+							return;
+						}
 					}
-					else if (queryType == "Titles" && !queryByTitle(value, query)){
-						return;
+					// Store data about the petition
+	            	var user = value.username;
+					var title = value.petitionTitle;
+					var views = value.views;
+					
+	
+					// Store data about the latest comment
+					var replyAmount = 0;
+					var lastReplyDate = "";
+					var lastReplyUser = "";
+					var statusImage = "fa fa-frown-o";
+					// Find the latest comment (if any)
+					var lastReply = findLastReply(value);
+					if (lastReply) {
+						// Set the latest comment information
+						replyAmount = Object.values(value.comments).length;
+						lastReplyUser = lastReply.author;
+						statusImage = getStatusImage(new Date(lastReply.date));
+						lastReplyDate = new Date(lastReply.date).toLocaleDateString();
 					}
-					else if (queryType == "Description" && !queryByDescription(value, query)){
-						return;
-					}
+	
+					// Adds new row of information to posts
+					addRow(y, 
+					   user, 
+					   title, 
+					   replyAmount, 
+					   views, 
+					   lastReplyDate,
+					   lastReplyUser,
+					   statusImage,
+					   postId
+					);
 				}
-				// Store data about the petition
-            	var user = value.username;
-				var title = value.petitionTitle;
-				var views = value.views;
-				
-
-				// Store data about the latest comment
-				var replyAmount = 0;
-				var lastReplyDate = "";
-				var lastReplyUser = "";
-
-				// Find the latest comment (if any)
-				var lastReply = findLastReply(value);
-				if (lastReply) {
-					// Set the latest comment information
-					replyAmount = Object.values(value.comments).length;
-					lastReplyDate = lastReply.date;
-					lastReplyUser = lastReply.author;
-				}
-				
-				var statusImage = getStatusImage(Date.parse(lastReplyDate));
-
-				// Adds new row of information to posts
-				addRow(y, 
-				   user, 
-				   title, 
-				   replyAmount, 
-				   views, 
-				   lastReplyDate.split(", ")[0], 
-				   lastReplyUser,
-				   statusImage,
-				   postId
-				);
 				y++;
 			});
+
+			// Add page buttons
+			var pages = ``;
+			for (let p = 1; p <= totalPetitions / amountOfPosts; p++){
+				pages += `<a id="page${p}">${p}</a>`;
+			}
+			if (pages == ``) { pages = `<a id="page1" href="">1</a>`}
+			var containerDiv = document.getElementById("container");
+			containerDiv.innerHTML += `<div class="pagination">
+                pages: ${pages}
+            </div>`;
+			// Allow page buttons to be clicked
+			for (let p = 1; p <= totalPetitions / amountOfPosts; p++){
+				var page = document.getElementById(`page${p}`)
+				page.addEventListener("click", function(){
+					fetchPosts(query, queryType, ((p-1)*amountOfPosts)+1, amountOfPosts);
+				}, false);
+			}
 		}
 		else {
 			// No data available

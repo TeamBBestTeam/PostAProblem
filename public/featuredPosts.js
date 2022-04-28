@@ -8,13 +8,10 @@ const auth = getAuth();
 /**
    * Signs a petition if not signed, unsigns a petition if previously signed
    * Only allows user to sign petition if signed in, otherwise displays warning prompt
-   * @param evt {Object} Event that occured (generated with addEventListener)
+   * @param postNumber {int} Post number on page (from top to bottom, starting at 1)
+   * @param postId {string} Unique identifier of the post
 **/
-function signPetition(evt) {
-	// Get post this button is attached to
-	var postNumber = evt.currentTarget.postNumber;
-	var postId = evt.currentTarget.postId;
-
+function signPetition(postNumber, postId) {
 	// Get the current user
 	const user = auth.currentUser;
 	// Only allow logged in users to sign
@@ -68,47 +65,130 @@ function signPetition(evt) {
 }
 
 //Comments
+
 /**
 	* Displays a comment section if hidden, hides if displayed
-	* @param evt {Object} Event that occured (generated with addEventListener)
+   	* @param postNumber {int} Post number on page (from top to bottom, starting at 1)
+    * @param postId {string} Unique identifier for post
 **/
-function toggleComment(evt){
-	// Get post this comment button is attached to
-	var postNumber = evt.currentTarget.postNumber;
+function toggleComment(postNumber, postId){
 	// Get the current user
 	const user = auth.currentUser;
 
 	// Only allow logged in users to comment
 	if (user !== null){
 		var commentArea = document.getElementById(`comment-area${postNumber}`);
+		var submitCommentButton = document.getElementById(`submitComment${postNumber}`);
+
 		// Show / hide comment area
 		if (commentArea.classList.contains("hide")){
 			commentArea.classList.remove("hide");
+			// Allow user to submit comment
+			submitCommentButton.addEventListener("click", function(){
+				console.log("SUBMIT!");
+				submitComment(postNumber, postId);
+			}, false);
+			
 		}
 		else {
+			// Do not allow user to submit comment
+			var clearedElement = submitCommentButton.cloneNode(true);
+			submitCommentButton.parentNode.replaceChild(clearedElement, submitCommentButton);
 			commentArea.classList.add("hide");
 		}		
 	}
+}
+/**
+	* Adds a comment to the database file
+	* Overwrites previous posts by the user
+	* @param postId {string} ID of the post to add
+	* @param username {string} Author of the comment
+	* @param uid {string} Unique user ID number
+	* @param commentText {string} Contains the text for a comment
+	* @param date {string} Local representation of the current date and time
+**/
+function addComment(postId, username, uid, commentText, date){
+	// Check if the comment already exists
+	get(child(dbRef, `petitions/${postId}/comments/${uid}`)).then((snapshot) => {
+		if (snapshot.exists()){
+			// If previous comment exists, ask user if they'd like to overwrite
+			var prompt = confirm("Overwrite previous comment?");
+			if (!prompt){
+				// User selected 'Cancel' - refresh
+				window.location.href = window.location.href;
+				return;
+			}
+		}
+		// No comment exists OR User selected 'Ok' - Comment on the petition
+		var updates = {};
+		// Path to the comment in the database
+		var path = `/petitions/${postId}/comments/${uid}/`;
+		// Update author, commentText, and date keys
+		updates[path+`author`] = username;
+		updates[path+`commentText`] = commentText;
+		updates[path+`date`] = date;
 
+		// Push updates
+		update(dbRef, updates);
+
+		alert("Post submitted!");
+		// Refresh the page
+		window.location.href = window.location.href;
+	});
 }
 
 /**
+	* Submits a comment to the petition
+	* Calls the addComment function with the details found for the comment
+    * @param postNumber {int} Post number on page (from top to bottom, starting at 1)
+   	* @param postId {string} Unique identifier of the post
+**/
+function submitComment(postNumber, postId){
+	// Get the current user
+	const user = auth.currentUser;
+	var userId = user.uid;
+	var commentText = document.getElementById(`comment${postNumber}`).value;
+	// Only allow posts with content inside of them
+	if (commentText.length <= 1){
+		alert("Your comment is blank!");
+	}
+	// Only allow logged in users to submit comment
+	else if (user !== null){
+		var dateTime = new Date().toUTCString();
+		// Check if user has already left a comment
+		// Get username from database
+		get(child(dbRef, `users/${userId}`)).then((snapshot) => {
+			// Check if the petitions exist
+			if (snapshot.exists()) {
+				var username = snapshot.val().username;
+				addComment(
+					postId,
+					username, 
+					userId,
+					commentText, 
+					dateTime
+				);
+			}
+		});
+	}
+}
+/**
    * Fetches status picture from images, given the date of the last reply
-   * @param lastReplyDate {Date} [lastReplyDate=0] Date of last reply (in Unix time)
+   * @param {Date} Date of last reply
    * @return {string} filename of status icon image
 **/
-function getStatusImage(lastReplyDate=0){
-	const today = new Date();
+function getStatusImage(lastReplyDate){
+	const hoursElapsed = (new Date().getTime() - lastReplyDate.getTime()) / 3600000;
 
-	if (lastReplyDate > today.getDate() - 1/4){
+	if (hoursElapsed < 6){
 		// In the last 6 hours
 		return "fa fa-rocket";
 	}
-	else if (lastReplyDate > today.getDate() - 1){
-		// Since yesterday
+	else if (hoursElapsed < 24){
+		// In the last 24 hours
 		return "fa fa-fire";
 	}
-	else if (lastReplyDate > today.getDate() - 7){
+	else if (hoursElapsed < 168){
 		// In the last week
 		return "fa fa-book";
 	}
@@ -148,14 +228,12 @@ function addPost(y, postId, author, title, text, replyAmount, views, votes, stat
                 </div>
                 <div class="content">
                     <h3 style="max-width:600px;
-                      word-wrap:break-word;">
-                      <a href="petition.html?id=${postId}">${title}</a>
-                    </h3>
+    word-wrap:break-word;"><a href="petition.html?id=${postId}">${title}</a></h3>
                     <br>
-					          <hr>
+					<hr>
                     <br><br>
                     <p style="max-width:600px;
-                      word-wrap:break-word;">${text}</p>
+    word-wrap:break-word;">${text}</p>
                     <div class="signingButton">
                         <button class="signButton" id="sign${y}">Sign</button>
                         <var name="signTotal" id="signTotal${y}">${votes}</var>
@@ -174,8 +252,8 @@ function addPost(y, postId, author, title, text, replyAmount, views, votes, stat
 	var comment = document.createElement('div');
 	comment.classname = 'table-row';
 	comment.innerHTML = `<div class="comment-area hide" id="comment-area${y}">
-            <textarea name="comment" id="" placeholder="comment here ... "></textarea>
-            <input type="submit" value="submit">
+            <textarea name="comment" id="comment${y}" placeholder="comment here ... "></textarea>
+            <input type="submit" value="submit" id="submitComment${y}">
         </div>`;
 	
 	// Add table and commenting area to the container
@@ -184,16 +262,17 @@ function addPost(y, postId, author, title, text, replyAmount, views, votes, stat
 
 	// Allow user to click sign button
 	var signButton = document.getElementById(`sign${y}`);
-	signButton.postNumber = y;
-	signButton.postId = postId;
-	signButton.addEventListener("click", signPetition);
+
+	signButton.addEventListener("click", function(){
+		signPetition(y, postId);
+	}, false);
 	
 	
 	// Allow user to click comment button
 	var commentButton = document.getElementById(`commentButton${y}`);
-	commentButton.postNumber = y;
-	commentButton.postId = postId;
-	commentButton.addEventListener("click", toggleComment);
+	commentButton.addEventListener("click", function(){
+		toggleComment(y, postId);
+	}, false);
 }
 
 /**
@@ -204,10 +283,10 @@ function addPost(y, postId, author, title, text, replyAmount, views, votes, stat
 **/
 function findLastReply(record) {
 	// Verify there are comments in this petition
-	if (record.comments && record.comments.comment1){
+	if (record.comments){
 		// Store the last post information
 		var lastPostTime = 0;
-		var lastPost = record.comments.comment1;
+		var lastPost = record.comments[Object.values(record.comments).length - 1];
 		// Loop over each comment
 		for (var n = 0; n < Object.values(record.comments).length; n++){
 			// Store the time this comment was posted
@@ -225,17 +304,19 @@ function findLastReply(record) {
 }
 
 /**
-   * Fetches 3 random posts from Firebase's realtime database
+   * Fetches 3 posts from Firebase's realtime database
    * Calls the addPost function for each post
    * @param amountToShow {int} [amountToShow=3] Amount of posts to display
 **/
 function fetchFeaturedPosts(amountToShow=3){
+	
 	// Get petitions from database
 	get(child(dbRef, `petitions`)).then((snapshot) => {
 		// Check if the petitions exist
 		if (snapshot.exists()) {
 			// Store row/petition number in query
 			var y = 0;
+			
 			// Loop over each petition in the snapshot
 		 	snapshot.forEach(function (childSnapshot) {			
 				// Only show amountToShow number of posts
@@ -253,17 +334,18 @@ function fetchFeaturedPosts(amountToShow=3){
 
 				// Store data about the latest comment
 				var replyAmount = 0;
-				var lastReplyDate = "";
+				var lastReplyDate = new Date(0);
 				// Find the latest comment (if any)
 				var lastReply = findLastReply(value);
 
 				if (lastReply) {
 					// Set the latest comment information
 					replyAmount = Object.values(value.comments).length;
-					lastReplyDate = lastReply.date;
+					lastReplyDate = new Date(lastReply.date);
 				}
 				
-				var statusImage = getStatusImage(Date.parse(lastReplyDate));
+				var statusImage = getStatusImage(lastReplyDate);
+
 				
 				// Adds new row of information to posts
 				addPost(y,
