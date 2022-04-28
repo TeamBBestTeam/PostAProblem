@@ -9,13 +9,15 @@ const dbRef = ref(getDatabase());
 	* Adds post information to page
 	* @param values {Object} Snapshot values from Firebase
 	* @param postId {string} Unique identifier of the petition
+	* @param commentStart {int} Starting comment index
+	* @param totalCommentsToDisplay {int} Amount of comments to display on this page
 **/
-function addPost(values, postId) {
+function addPost(values, postId, commentStart=0, totalCommentsToDisplay=10) {
 	// Get information from values object
 	var petitionText = values.petitionText;
 	var petitionTitle = values.petitionTitle;
 	var originalPoster = values.username;
-	var views = values.views;
+	var views = values.views + 1;
 	// Count the amount of votes
 	var votes = Object.keys(values.votes).length - 1;
 	// Generate HTML for post
@@ -64,15 +66,20 @@ function addPost(values, postId) {
 	</h3>`;
 	
 	// Add comments
-	if (comments !== `undefined`){
+	if (typeof comments !== `undefined`){
 		petitionHTML += `<br><hr>`;
-		// Display the first ten comments
-		for (let i = 0; i < 10 && i < amountOfComments; i++){
+
+		// Display all comments in reverse order (newest: first)
+		// commentStart : Starting comment index
+		// totalCommentsToDisplay : Amount of comments on this page
+		for (let i = amountOfComments-1-commentStart; 
+			 i >= 0 && i > amountOfComments-1-commentStart-totalCommentsToDisplay; 
+			 i--){
 			var comment = comments[Object.keys(comments)[i]];
 			
 			var commentAuthor = comment.author;
 			var commentText = comment.commentText;
-			var date = comment.date.split(", ")[0];;
+			var date = new Date(comment.date).toLocaleDateString();
 			
 			var commentHTML = `
 			<div class="body" style="width: 100%">
@@ -91,11 +98,31 @@ function addPost(values, postId) {
 
 			petitionHTML += commentHTML;
 		}
+		
 	}
 	petitionHTML += `<div id="commentContainer"></div>`;
 	document.getElementById("postLink").innerHTML = petitionTitle;
 	document.getElementById("petition").innerHTML = petitionHTML;
 	
+	// Add page buttons for comments
+	if (typeof comments !== `undefined`){
+		var pages = ``;
+		for (let p = 1; p <= amountOfComments / totalCommentsToDisplay; p++){
+			pages += `<a id="page${p}">${p}</a>`;
+		}
+		if (pages == ``) { pages = `<a id="page1" href="">1</a>`}
+		var containerDiv = document.getElementById("pageNumberArea");
+		containerDiv.innerHTML = `<div class="pagination">
+			pages: ${pages}
+		</div>`;
+		// Allow page buttons to be clicked
+		for (let p = 1; p <= amountOfComments / totalCommentsToDisplay; p++){
+			var page = document.getElementById(`page${p}`)
+			page.addEventListener("click", function(){
+				addPost(values, postId, ((p-1)*totalCommentsToDisplay), totalCommentsToDisplay);
+			}, false);
+		}
+	}
 	// Create a hidden commenting area underneath comments
 	document.getElementById("commentContainer").innerHTML = `
 		<div classname="table-row">
@@ -108,13 +135,15 @@ function addPost(values, postId) {
 	// Allow user to click sign button - signing/unsigning a petition
 	var signButton = document.getElementById(`sign`);
 	signButton.postId = postId;
-	signButton.addEventListener("click", signPetition);
-
+	signButton.addEventListener("click", function(){
+		signPetition(postId);
+	}, false);
 	// Allow user to click comment button - showing comment area
 	var commentButton = document.getElementById(`commentButton`);
 	signButton.postId = postId;
-	commentButton.addEventListener("click", toggleComment);
-
+	commentButton.addEventListener("click", function(){
+		toggleComment(postId);
+	}, false);
 	
 
 	
@@ -133,6 +162,19 @@ function tryFetchPost(postId){
 		if (snapshot.exists()) {
 			// Add the post information to the page
 			addPost(snapshot.val(), postId);
+
+			
+			// Check if user has not seen post before (based on cookies*)
+			if (!document.cookie.includes("returningUser=true")){
+				// Increment view counter
+				var updates = {};
+				updates[`/petitions/${postId}/views`] = snapshot.val().views + 1;
+				update(dbRef, updates);
+				// Add cookie
+				document.cookie += "returningUser=true";
+			}
+			
+			
 		} else { 
 			alert("Post ID not found");
 			// If post is not found - Bring user to 404 page
@@ -149,12 +191,9 @@ function tryFetchPost(postId){
 /**
    * Signs a petition if not signed, unsigns a petition if previously signed
    * Only allows user to sign petition if signed in, otherwise displays warning prompt
-   * @param evt {Object} Event that occured (generated with addEventListener)
+   * @param postId {string} Unique identifier of the petition
 **/
-function signPetition(evt) {
-	// Get post this button is attached to
-	var postId = evt.currentTarget.postId;
-
+function signPetition(postId) {
 	// Get the current user
 	const user = auth.currentUser;
 	// Only allow logged in users to sign
@@ -207,9 +246,9 @@ function signPetition(evt) {
 //Comments
 /**
 	* Displays a comment section if hidden, hides if displayed
-	* @param evt {Object} Event that occured (generated with addEventListener)
+	* @param postId {string} Unique identifier of the petition
 **/
-function toggleComment(evt){
+function toggleComment(postId){
 	// Get the current user
 	const user = auth.currentUser;
 	
@@ -217,23 +256,33 @@ function toggleComment(evt){
 	if (user !== null){
 		var commentArea = document.getElementById(`comment-area`);
 		var submitCommentButton = document.getElementById(`submitComment`);
-		submitCommentButton.postId = evt.currentTarget.postId;
 		// Show / hide comment area
 		if (commentArea.classList.contains("hide")){
 			commentArea.classList.remove("hide");
 			// Allow user to submit comment
-			submitCommentButton.addEventListener("click", submitComment);
+			submitCommentButton.addEventListener("click", function(){
+				submitComment(postId);
+			}, false);
 		}
 		else {
-			// Don't allow user to submit comment
-			submitCommentButton.removeEventListener("click", submitComment);
+			// Do not allow user to submit comment
+			var clearedElement = submitCommentButton.cloneNode(true);
+			submitCommentButton.parentNode.replaceChild(clearedElement, submitCommentButton);
 			commentArea.classList.add("hide");
 		}		
 	}
 
 }
 
-
+/**
+	* Adds a comment to the database file
+	* Overwrites previous posts by the user
+	* @param postId {string} ID of the post to add
+	* @param username {string} Author of the comment
+	* @param uid {string} Unique user ID number
+	* @param commentText {string} Contains the text for a comment
+	* @param date {string} Local representation of the current date and time
+**/
 function addComment(postId, username, uid, commentText, date){
 	// Check if the comment already exists
 	get(child(dbRef, `petitions/${postId}/comments/${uid}`)).then((snapshot) => {
@@ -266,21 +315,12 @@ function addComment(postId, username, uid, commentText, date){
 /**
 	* Submits a comment to the petition
 	* Calls the addComment function with the details found for the comment
-	* @param evt {Object} Event that occured (generated with addEventListener)
+	* @param postId {string} Unique identifier of the petition
 **/
-function submitComment(evt){
+function submitComment(postId){
 	// Get the current user
 	const user = auth.currentUser;
 	var userId = user.uid;
-	// Get the post this button is attached to
-	var url = window.location.href;
-	var postId;
-	// Parse URL for postId
-	// Must be in format: .../post.html?id="postId"
-	if (url.includes("petition.html?") && url.includes("id=")){
-		postId = url.split("id=")[1];
-	}
-	else { return; }
 	
 	var commentText = document.getElementById("newCommentArea").value;
 	// Only allow posts with content inside of them
@@ -289,7 +329,7 @@ function submitComment(evt){
 	}
 	// Only allow logged in users to submit comment
 	else if (user !== null){
-		var dateTime = new Date(Date.now()).toLocaleString();
+		var dateTime = new Date().toUTCString();
 		// Check if user has already left a comment
 		// Get username from database
 		get(child(dbRef, `users/${userId}`)).then((snapshot) => {
