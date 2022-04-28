@@ -29,8 +29,9 @@ const dbRef = ref(getDatabase());
    * @param {string} lastReplyDate Date of the last comment, in format MMM DD YYYY
    * @param {string} lastReplyUser Username of the last commenter
    * @param {string} statusImage Status image for the post
+   * @param {string} postId Unique identifier for the post
 */
-function addRow(y, user, title, replyAmount, views, lastReplyDate, lastReplyUser, statusImg) {
+function addRow(y, user, title, replyAmount, views, lastReplyDate, lastReplyUser, statusImg, postId) {
 	// Create row for this entry
 	const tableRow = document.createElement('div');
 	tableRow.className = 'table-row';
@@ -44,7 +45,7 @@ function addRow(y, user, title, replyAmount, views, lastReplyDate, lastReplyUser
 	const subjects = document.createElement('div');
 	subjects.className = 'subjects';
 	subjects.innerHTML = `
-		<a href="">${title}</a>
+		<a href="petition.html?id=${postId}">${title}</a>
 		<br>
 		<span>Started by <b><a href="">${user}</a></b> .</span>
 	`;
@@ -82,13 +83,13 @@ function addRow(y, user, title, replyAmount, views, lastReplyDate, lastReplyUser
 **/
 function findLastReply(record) {
 	// Verify there are comments in this petition
-	if (record.comments && record.comments.comment1){
+	if (record.comments){
 		// Store the last post information
 		var lastPostTime = 0;
-		var lastPost = record.comments.comment1;
+		var lastPost = record.comments[Object.values(record.comments).length - 1];
 		// Loop over each comment
 		for (var n = 0; n < Object.values(record.comments).length; n++){
-			// Store the time this comment was posted
+			// Get the time this comment was posted
 			var postTime = Date.parse(Object.values(record.comments)[n].date);
 			// If this post is newer than the last post found
 			if (lastPostTime < postTime){
@@ -115,10 +116,11 @@ function queryEverything(record, query=""){
 	if (!record.petitionTitle.toLowerCase().includes(query) && 
 		!record.petitionText.toLowerCase().includes(query)){
 		// Check if the post has comments
-		if (record.comments && record.comments.comment1){
+		if (record.comments){
+			
 			for (var n = 0; n < Object.values(record.comments).length; n++){
 				var author = Object.values(record.comments)[n].author.toLowerCase();
-				var commentText = Object.values(record.comments)[n].comment.toLowerCase();
+				var commentText = Object.values(record.comments)[n].commentText.toLowerCase();
 				// Check comment and comment author for queried text
 				if (commentText.includes(query) || 
 					author.includes(query)){
@@ -157,12 +159,12 @@ function queryByDescription(record, query=""){
 
 /**
    * Fetches status picture from images, given the date of the last reply
-   * @param {Date} [lastReplyDate=0] Date of last reply (in Unix time)
+   * @param {Date} [lastReplyDate=0] Date of last reply
    * @return {string} filename of status icon image
 **/
 function getStatusImage(lastReplyDate=0){
 	const today = new Date();
-
+	
 	if (lastReplyDate > today.getDate() - 1/4){
 		// In the last 6 hours
 		return "fa fa-rocket";
@@ -206,6 +208,7 @@ function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=10
 								
 				// Load data from petition
             	var value = childSnapshot.val();
+				var postId = childSnapshot.key;
 				
 
 				// Only display posts that contain the query in selected content
@@ -240,7 +243,7 @@ function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=10
 					lastReplyUser = lastReply.author;
 				}
 				
-				var statusImage = getStatusImage(lastReplyDate);
+				var statusImage = getStatusImage(Date.parse(lastReplyDate));
 
 				// Adds new row of information to posts
 				addRow(y, 
@@ -248,9 +251,10 @@ function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=10
 				   title, 
 				   replyAmount, 
 				   views, 
-				   lastReplyDate, 
+				   lastReplyDate.split(", ")[0], 
 				   lastReplyUser,
-				   statusImage
+				   statusImage,
+				   postId
 				);
 				y++;
 			});
@@ -295,8 +299,8 @@ function loadSearch(){
 			}
 			
 			// If query found, have searchbar and dropdown box store the information
-			if (typeof query !== "undefined" && 
-				typeof queryType !== "undefined" ) {
+			if (typeof query !== `undefined` && 
+				typeof queryType !== `undefined` ) {
 					document.getElementById('searchBar').value = query;
 					document.getElementById('dropdown').value = queryType;
 			}

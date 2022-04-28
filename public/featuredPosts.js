@@ -94,7 +94,7 @@ function toggleComment(evt){
 
 /**
    * Fetches status picture from images, given the date of the last reply
-   * @param {Date} [lastReplyDate=0] Date of last reply (in Unix time)
+   * @param lastReplyDate {Date} [lastReplyDate=0] Date of last reply (in Unix time)
    * @return {string} filename of status icon image
 **/
 function getStatusImage(lastReplyDate=0){
@@ -118,8 +118,18 @@ function getStatusImage(lastReplyDate=0){
 
 /**
    * Adds post information to the page
+   * @param y {int} Row number, from top-to-bottom of page
+   * @param postId {string} Unique identifier for post
+   * @param user {string} Author of the post
+   * @param title {string} Title of the post
+   * @param text {string} Content in the post
+   * @param replyAmount {int} Number of replies to this post
+   * @param views {int} Number of views for this post
+   * @param votes {int} Number of signatures this post has
+   * @param statusImage {string} Image to display on this post
+   * 
 **/
-function addPost(y, postId, user, title, text, replyAmount, views, votes, statusImage){
+function addPost(y, postId, author, title, text, replyAmount, views, votes, statusImage){
 	var container = document.getElementById("container");
 //
 	// Add row containing post information
@@ -130,7 +140,7 @@ function addPost(y, postId, user, title, text, replyAmount, views, votes, status
 	// Generate HTML for this post
 	var postHTML = `<div class="body" style="width: 100%">
                 <div class="authors">
-                    <div class="username"><a href="">${user}</a></div>
+                    <div class="username"><a href="">${author}</a></div>
                     <div>Status</div>
                     <i class="${statusImage}" style="font-size: 40px; margin-top: 10px; margin-bottom: 10px;"></i>
                     <div>Replies: <u>${replyAmount}</u></div>
@@ -138,7 +148,7 @@ function addPost(y, postId, user, title, text, replyAmount, views, votes, status
                 </div>
                 <div class="content">
                     <h3 style="max-width:600px;
-    word-wrap:break-word;">${title}</h3>
+    word-wrap:break-word;"><a href="petition.html?id=${postId}">${title}</a></h3>
                     <br>
 					<hr>
                     <br><br>
@@ -244,14 +254,14 @@ function fetchFeaturedPosts(amountToShow=3){
 				var lastReplyDate = "";
 				// Find the latest comment (if any)
 				var lastReply = findLastReply(value);
+
 				if (lastReply) {
 					// Set the latest comment information
 					replyAmount = Object.values(value.comments).length;
 					lastReplyDate = lastReply.date;
-					lastReplyUser = lastReply.author;
 				}
 				
-				var statusImage = getStatusImage(lastReplyDate);
+				var statusImage = getStatusImage(Date.parse(lastReplyDate));
 				
 				// Adds new row of information to posts
 				addPost(y,
