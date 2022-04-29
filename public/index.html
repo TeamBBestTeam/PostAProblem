@@ -19,7 +19,6 @@
                 <ul class="nav-list">
                     <li class="nav-item"><a href="index.html">Home</a></li>
                     <li class="nav-item"><a href="posts.html">Posts</a></li>
-                    <li class="nav-item"><a href="forums.html">Forums</a></li>
                     <li class="nav-item"><a href="about.html">About</a></li>
                     <li class="nav-item"><a href="profile.html">Profile</a></li>
                 </ul>
@@ -134,7 +133,6 @@
             onValue(userRef, (snapshot) => {
                 //get username of currently signed in user
                 const data = snapshot.val().username;
-                console.log(user.uid);
                 //add username to welcome title 
                 document.getElementById('welcome_title').getElementsByTagName('span')[0].innerHTML = 'Welcome, ' + data;
                 

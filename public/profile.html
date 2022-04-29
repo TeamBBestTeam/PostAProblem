@@ -55,9 +55,7 @@
 
     <div class="profile_box">
         <img id="profilePic";>
-        <button id="editProfile">
-            <a href="profileEdit.html">Edit Profile</a>
-        </button>
+        <div id="profile_edit_button"></div>
         <p id = "username">Username</p>
         <p id = "location">Location</p>
         <p id = "join_date"></p>
@@ -109,9 +107,31 @@
 
     auth.onAuthStateChanged(function (user) {
             if (user != null) {
+				var id = user.uid;
+				var url = window.location.href;
+
+				// Allow queries to be parsed
+				// Must be in format: .../profile.html?id=UserId"
+				if (url.includes("profile.html?id=")){
+					id = url.split("profile.html?id=")[1];
+				}
+				
+				// Add edit profile button if this is this user's profile
+				if (id == user.uid) {
+				document.getElementById("profile_edit_button").innerHTML = 							`<button id="editProfile">
+						<a href="profileEdit.html">Edit Profile</a>
+					</button>`
+				}
+				
                 //reference users stored in database
-                var userRef = ref_database(db, "users/" + user.uid);
+                var userRef = ref_database(db, "users/" + id);
                 onValue(userRef, (snapshot) => {
+					// If the specified ID in the URL does not exist
+					if (!snapshot.exists()){ 
+						// Bring user to 404 page
+						window.location.href = "404.html";
+						return;
+					}
                     //get username of currently signed in user
                     const userName = snapshot.val().username;
                     const userLocation = snapshot.val().country;

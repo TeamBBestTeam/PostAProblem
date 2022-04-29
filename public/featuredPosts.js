@@ -85,7 +85,6 @@ function toggleComment(postNumber, postId){
 			commentArea.classList.remove("hide");
 			// Allow user to submit comment
 			submitCommentButton.addEventListener("click", function(){
-				console.log("SUBMIT!");
 				submitComment(postNumber, postId);
 			}, false);
 			
