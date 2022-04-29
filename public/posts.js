@@ -190,7 +190,7 @@ function getStatusImage(lastReplyDate){
    * @param startY {int} [startY=1] Post in query to start at
    * @param amountOfPosts {int} [amountOfPosts=10] Amount of posts to display
 **/
-function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=10){
+function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=4){
 	// Clear current petitions listed on page
 	document.getElementById('container').innerHTML = "";
 	
