@@ -27,8 +27,8 @@
             <a class="bar-icon" id="iconBar" onclick="hideIconBar()"><i class="fa fa-bars"></i></a>
             <div class="brand">Post-A-Problem</div>
             <div class="login">
-                <button>
-                    <a href="login.html">Login</a>
+                <button id="login/logout">
+                    <a href="login.html"></a>
                 </button>
                 <button>
                     <a href="login.html">Sign Up</a>
@@ -69,7 +69,7 @@
     // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-analytics.js";
-    import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/9.6.8/firebase-auth.js";
+    import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} from "https://www.gstatic.com/firebasejs/9.6.8/firebase-auth.js";
 
     // TODO: Add SDKs for Firebase products that you want to use
     // https://firebase.google.com/docs/web/setup#available-libraries
@@ -89,7 +89,7 @@
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    import {getDatabase, ref, set, child, update, remove, onValue, push}
+    import {getDatabase, ref, set, child, update, remove, onValue, push, get}
     from "https://www.gstatic.com/firebasejs/9.6.8/firebase-database.js";
 
     const db = getDatabase();
@@ -97,6 +97,7 @@
     const user = auth.currentUser;
     var testBtn = document.getElementById('test');
     var submitBtn = document.getElementById('submitBtn');
+    var logInBtn = document.getElementById('login/logout');
 
     auth.onAuthStateChanged(function(user) {
         if (user != null) {
@@ -106,13 +107,17 @@
                 //get username of currently signed in user
                 const data = snapshot.val().username;
                 console.log(data);
+                logInBtn.innerText = "Logout";
                 // Create a petition welcome title
-                document.getElementById('create_petition_title').getElementsByTagName('span')[0].innerHTML = 'Create a Petition, ' + data;
+                document.getElementById('create_petition_title')
+					.getElementsByTagName('span')[0]
+					.innerHTML = 'Create a Petition, ' + data;
             });
 
         }
          else {
             console.log("not logged in");
+            logInBtn.innerText = "Login";
         }
       });
 
@@ -126,12 +131,21 @@
         // Get values
         var pTitle = document.getElementById('petitionTitleInput').value;
         var pText = document.getElementById('petitionTextInput').value;
+		var uid = auth.currentUser.uid;
+		// Get username from user id
+	    get(child(ref(db), `/users/${uid}`)).then((snapshot) => {
+			if (snapshot.exists()) {
+				var username = snapshot.val().username;
+				console.log("User:", username);
+				console.log(pTitle);
+				console.log(pText);
 
-        console.log(pTitle);
-        console.log(pText);
+				// Save petition
+				savePetition(pTitle, pText, username);
+			}
+		});
 
-        // Save petition
-        savePetition(pTitle, pText);
+
       }
 
       // Get form values
@@ -140,24 +154,47 @@
       }
 
       // Save petition to firebase
-      function savePetition(title, text){
-
+      function savePetition(title, text, user){
+		
         // Petition entry
         const petition = {
           petitionText: text,
           petitionTitle: title,
-          username: data,
+          username: user,
           views: 0,
-          votes: 0
+          votes: {0:""}
         };
 
         // Get a key for a new Petition
         const newPetitionKey = push(child(ref(db), 'petitions')).key;
-
+		
         const updates = {};
         updates['/petitions/' + newPetitionKey] = petition;
 
         return update(ref(db), updates);
       }
+
+      logInBtn.addEventListener("click", (e) => {
+          auth.onAuthStateChanged(function (user) {
+            //if user is signed in, log current user out
+            if (user != null) {
+
+              signOut(auth).then(() => {
+                //notify user that they have successfully logged out
+                alert('User logged out');
+                //refresh page
+                window.location = 'index.html';
+              }).catch((error) => {
+                // An error happened.
+                alert('error');
+              });
+            }
+
+            //otherwise bring user to login screen to login
+            else {
+              window.location = 'login.html';
+            }
+          });
+        });
   </script>
 </html>
