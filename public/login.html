@@ -69,11 +69,13 @@
         .then((userCredential) => {
             // Signed in 
             const user = userCredential.user;
-            //alert('user created');
+            alert('user created');
+            console.log(user.uid);
 
             //save created user to database
             set(ref(db, 'users/' + user.uid),{
                 email: email
+    
             })
 
             //i want to bring user to complete registration page next 
@@ -118,6 +120,7 @@
             //bring user to home page when logging in successfully
             auth.onAuthStateChanged(user => {
                 if(user) {
+                    console.log(user)
                     window.location = 'index.html';
                 }
             });
