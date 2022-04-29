@@ -662,6 +662,12 @@ a.card {
     margin-top: 5px;
 }
 
+.about {
+    display: grid;
+    /* border: 5px solid; */
+    margin: 10px;
+}
+
 .body .authors .username{
     font-size: 20px;
 }
