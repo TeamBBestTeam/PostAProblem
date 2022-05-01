@@ -22,16 +22,18 @@ const dbRef = ref(getDatabase());
 /**
    * Adds a row of data, containing  information about a post
    * @param {int} y Row number
-   * @param {string} user Username of original poster
+   * @param {string} author Username of original poster
+   * @param {string} authorId ID of the author
    * @param {string} title Title of the post
    * @param {int} replyAmount Amount of replies this post has
    * @param {string} view Amount of views this post has
    * @param {string} lastReplyDate Date of the last comment, in format MMM DD YYYY
    * @param {string} lastReplyUser Username of the last commenter
+   * @param {string} lastReplyUserId ID of the last commenter
    * @param {string} statusImage Status image for the post
    * @param {string} postId Unique identifier for the post
 */
-function addRow(y, user, title, replyAmount, views, lastReplyDate, lastReplyUser, statusImg, postId) {
+function addRow(y, author, authorId, title, replyAmount, views, lastReplyDate, lastReplyUser, lastReplyUserId, statusImg, postId) {
 	// Create row for this entry
 	const tableRow = document.createElement('div');
 	tableRow.className = 'table-row';
@@ -47,7 +49,7 @@ function addRow(y, user, title, replyAmount, views, lastReplyDate, lastReplyUser
 	subjects.innerHTML = `
 		<a href="petition.html?id=${postId}">${title}</a>
 		<br>
-		<span>Started by <b><a href="">${user}</a></b> .</span>
+		<span>Started by <b><a href="profile.html?id=${authorId}">${author}</a></b> .</span>
 	`;
 
 	// Add info about all replies
@@ -63,8 +65,7 @@ function addRow(y, user, title, replyAmount, views, lastReplyDate, lastReplyUser
 		text = "None";
 	}
 	lastReply.innerHTML = `${lastReplyDate}
-		<br>${text} <b><a href="">${lastReplyUser}</a></b>`;
-
+		<br>${text} <b><a href="profile.html?id=${lastReplyUserId}">${lastReplyUser}</a></b>`;
 	// Add each div to the row
 	tableRow.appendChild(status);
 	tableRow.appendChild(subjects);
@@ -229,7 +230,8 @@ function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=4)
 						}
 					}
 					// Store data about the petition
-	            	var user = value.username;
+	            	var author = value.username;
+					var authorId = value.authorId;
 					var title = value.petitionTitle;
 					var views = value.views;
 					
@@ -238,6 +240,7 @@ function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=4)
 					var replyAmount = 0;
 					var lastReplyDate = "";
 					var lastReplyUser = "";
+					var lastReplyUserId = "";
 					var statusImage = "fa fa-frown-o";
 					// Find the latest comment (if any)
 					var lastReply = findLastReply(value);
@@ -245,18 +248,28 @@ function fetchPosts(query="", queryType="Everything", startY=1, amountOfPosts=4)
 						// Set the latest comment information
 						replyAmount = Object.values(value.comments).length;
 						lastReplyUser = lastReply.author;
+
+						for (let n = 0; n < replyAmount; n++){
+							if (lastReplyUser == Object.values(value.comments)[n].author){
+								lastReplyUserId = Object.keys(value.comments)[n];
+								break;
+							}
+						}
+
 						statusImage = getStatusImage(new Date(lastReply.date));
 						lastReplyDate = new Date(lastReply.date).toLocaleDateString();
 					}
 	
 					// Adds new row of information to posts
 					addRow(y, 
-					   user, 
+					   author,
+					   authorId,
 					   title, 
 					   replyAmount, 
 					   views, 
 					   lastReplyDate,
 					   lastReplyUser,
+					   lastReplyUserId,
 					   statusImage,
 					   postId
 					);
