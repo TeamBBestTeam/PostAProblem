@@ -206,11 +206,10 @@ function getStatusImage(lastReplyDate){
    * @param views {int} Number of views for this post
    * @param votes {int} Number of signatures this post has
    * @param statusImage {string} Image to display on this post
-   * 
 **/
-function addPost(y, postId, author, title, text, replyAmount, views, votes, statusImage){
+function addPost(y, postId, author, authorId, title, text, replyAmount, views, votes, statusImage){
 	var container = document.getElementById("container");
-//
+
 	// Add row containing post information
 	const tableRow = document.createElement('div');
 	tableRow.className = 'table-row';
@@ -219,7 +218,7 @@ function addPost(y, postId, author, title, text, replyAmount, views, votes, stat
 	// Generate HTML for this post
 	var postHTML = `<div class="body" style="width: 100%">
                 <div class="authors">
-                    <div class="username"><a href="">${author}</a></div>
+                    <div class="username"><a href="profile.html?id=${authorId}">${author}</a></div>
                     <div>Status</div>
                     <i class="${statusImage}" style="font-size: 40px; margin-top: 10px; margin-bottom: 10px;"></i>
                     <div>Replies: <u>${replyAmount}</u></div>
@@ -325,7 +324,8 @@ function fetchFeaturedPosts(amountToShow=3){
 				var postId = childSnapshot.key;
 				
 				// Store data about the petition
-            	var user = value.username;
+            	var author = value.username;
+				var authorId = value.authorId;
 				var title = value.petitionTitle;
 				var text = value.petitionText;
 				var views = value.views;
@@ -344,12 +344,12 @@ function fetchFeaturedPosts(amountToShow=3){
 				}
 				
 				var statusImage = getStatusImage(lastReplyDate);
-
 				
 				// Adds new row of information to posts
 				addPost(y,
 					postId,
-					user, 
+					author, 
+					authorId,
 					title, 
 					text,
 					replyAmount, 

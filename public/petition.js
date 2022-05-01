@@ -17,6 +17,7 @@ function addPost(values, postId, commentStart=0, totalCommentsToDisplay=10) {
 	var petitionText = values.petitionText;
 	var petitionTitle = values.petitionTitle;
 	var originalPoster = values.username;
+	var originalPosterId = values.authorId;
 	var views = values.views + 1;
 	// Count the amount of votes
 	var votes = Object.keys(values.votes).length - 1;
@@ -24,7 +25,7 @@ function addPost(values, postId, commentStart=0, totalCommentsToDisplay=10) {
 	var petitionHTML = `
 	<div class="body" style="width: 100%">
 		<div class="authors">
-			<div class="username"><a href="">${originalPoster}</a></div>`
+			<div class="username"><a href="profile.html?id=${originalPosterId}">${originalPoster}</a></div>`
 	
 	// Get comments (if they exist)
 	var comments = values.comments;
@@ -78,13 +79,14 @@ function addPost(values, postId, commentStart=0, totalCommentsToDisplay=10) {
 			var comment = comments[Object.keys(comments)[i]];
 			
 			var commentAuthor = comment.author;
+			var commenterId = Object.keys(comments)[i];
 			var commentText = comment.commentText;
 			var date = new Date(comment.date).toLocaleDateString();
 			
 			var commentHTML = `
 			<div class="body" style="width: 100%">
 				<div class="authors">
-					<div class="username"><a href="">${commentAuthor}</a></div>
+					<div class="username"><a href="profile.html?id=${commenterId}">${commentAuthor}</a></div>
 				<br><br><hr>
 				<div>Date: <u>${date}</u></div>
 				</div>
