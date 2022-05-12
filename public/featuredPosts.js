@@ -75,10 +75,10 @@ function verifyUserInfoExists(user) {
 		if (snapshot.exists()) {
 			var values = snapshot.val();
 			if (
-				values.country === undefined || 
-				values.firstname === undefined || 
-				values.lastname === undefined || 
-				values.username === undefined ){
+				values.country === "" || 
+				values.firstname === "" || 
+				values.lastname === "" || 
+				values.username === "" ){
 				// User is missing profile information!
 				// Redirect to edit profile page
 				window.location = "profileEdit.html";
