@@ -69,8 +69,8 @@ function signPetition(postNumber, postId) {
 	* If the user is missing information, will redirect them to profileEdit page
 	* @param user {Object} User to lookup
 **/
-void verifyUserInfoExists(user) {
-get(child(dbRef, `users/${user.uid}`)).then((snapshot) => {
+function verifyUserInfoExists(user) {
+	get(child(dbRef, `users/${user.uid}`)).then((snapshot) => {
 		// Check if the user exists
 		if (snapshot.exists()) {
 			var values = snapshot.val();
