@@ -158,6 +158,13 @@
         // Get values
         var pTitle = document.getElementById('petitionTitleInput').value;
         var pText = document.getElementById('petitionTextInput').value;
+		
+		// Verify values are not blank
+		var regExp = new RegExp("^(\S+[^\n\S\.]){3,}.*$");
+		if (!regex.test(pTitle) || !regex.test(pText) ) {
+			alert("Be more descriptive! At least 3 words are needed!");
+			return;
+		}
 		var uid = auth.currentUser.uid;
 		verifyUserInfoExists(auth.currentUser);
 		// Get username from user id
