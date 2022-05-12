@@ -102,8 +102,6 @@
     //access storage
     
     const storage = getStorage();
-    const profilePicRef = (storage, 'images/handsome_squidward.png');
-    console.log(profilePicRef);
     const img = document.getElementById("profilePic");
     var logInBtn = document.getElementById('login/logout');
 
@@ -142,8 +140,15 @@
                    
                     getDownloadURL(ref_storage(storage, `images/${id}`))
                         .then((url) => {
+							// Use custom profile picture
                             img.setAttribute('src', url);
-                        })
+                        }, reject => {
+							// Use default picture
+							getDownloadURL(ref_storage(storage, `images/handsome_squidward.png`))
+	                        	.then((url) => {
+	                            	img.setAttribute('src', url);
+	                        	})
+						})
                     
 
                  

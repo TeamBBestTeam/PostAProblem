@@ -131,8 +131,14 @@
             //reference users stored in database
             var userRef = ref(db, "users/" + user.uid);
             onValue(userRef, (snapshot) => {
+				if (snapshot.val() === null) {
+					window.location = "profileEdit.html";
+				}
                 //get username of currently signed in user
                 const data = snapshot.val().username;
+				if (data === null) {
+					window.location = "profileEdit.html";
+				}
                 //add username to welcome title 
                 document.getElementById('welcome_title').getElementsByTagName('span')[0].innerHTML = 'Welcome, ' + data;
                 

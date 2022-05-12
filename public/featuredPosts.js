@@ -64,6 +64,38 @@ function signPetition(postNumber, postId) {
 	}
 }
 
+/**
+	* Verifies if a user's information is complete on profileEdit.html
+	* If the user is missing information, will redirect them to profileEdit page
+	* @param user {Object} User to lookup
+**/
+void verifyUserInfoExists(user) {
+	get(child(dbRef, `users/${userId}`)).then((snapshot) => {
+		// Check if the user exists
+		if (snapshot.exists()) {
+			var values = snapshot.val();
+			if (
+				values.country === undefined || 
+				values.firstname === undefined || 
+				values.lastname === undefined || 
+				values.username === undefined ){
+				// User is missing profile information!
+				// Redirect to edit profile page
+				window.location = "profileEdit.html";
+			}
+		}
+		else {
+			// Snapshot for user not found- redirect to login page
+			window.location = "login.html";
+		}
+	});
+}
+
+
+
+
+
+
 //Comments
 
 /**
@@ -77,6 +109,7 @@ function toggleComment(postNumber, postId){
 
 	// Only allow logged in users to comment
 	if (user !== null){
+		verifyUserInfoExists(user);
 		var commentArea = document.getElementById(`comment-area${postNumber}`);
 		var submitCommentButton = document.getElementById(`submitComment${postNumber}`);
 
@@ -157,7 +190,7 @@ function submitComment(postNumber, postId){
 		// Check if user has already left a comment
 		// Get username from database
 		get(child(dbRef, `users/${userId}`)).then((snapshot) => {
-			// Check if the petitions exist
+			// Check if the user exists
 			if (snapshot.exists()) {
 				var username = snapshot.val().username;
 				addComment(

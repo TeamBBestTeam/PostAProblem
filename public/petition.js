@@ -4,6 +4,32 @@ import {getAuth} from "https://www.gstatic.com/firebasejs/9.6.8/firebase-auth.js
 
 const auth = getAuth();
 const dbRef = ref(getDatabase());
+/**
+	* Verifies if a user's information is complete on profileEdit.html
+	* If the user is missing information, will redirect them to profileEdit page
+	* @param user {Object} User to lookup
+**/
+function verifyUserInfoExists(user) {
+	get(child(dbRef, `users/${user.uid}`)).then((snapshot) => {
+		// Check if the user exists
+		if (snapshot.exists()) {
+			var values = snapshot.val();
+			if (
+				values.country === "" ||
+				values.firstname === "" ||
+				values.lastname === "" ||
+				values.username === "") {
+				// User is missing profile information!
+				// Redirect to edit profile page
+				window.location = "profileEdit.html";
+			}
+		}
+		else {
+			// Snapshot for user not found- redirect to login page
+			window.location = "login.html";
+		}
+	});
+}
 
 /**
 	* Adds post information to page
@@ -253,6 +279,7 @@ function signPetition(postId) {
 function toggleComment(postId){
 	// Get the current user
 	const user = auth.currentUser;
+	verifyUserInfoExists(user);
 	
 	// Only allow logged in users to comment
 	if (user !== null){

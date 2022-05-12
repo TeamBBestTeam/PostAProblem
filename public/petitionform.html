@@ -99,6 +99,33 @@
     var submitBtn = document.getElementById('submitBtn');
     var logInBtn = document.getElementById('login/logout');
 
+	/**
+		* Verifies if a user's information is complete on profileEdit.html
+		* If the user is missing information, will redirect them to profileEdit page
+		* @param user {Object} User to lookup
+	**/
+	function verifyUserInfoExists(user) {
+		get(child(dbRef, `users/${user.uid}`)).then((snapshot) => {
+			// Check if the user exists
+			if (snapshot.exists()) {
+				var values = snapshot.val();
+				if (
+					values.country === "" ||
+					values.firstname === "" ||
+					values.lastname === "" ||
+					values.username === "") {
+					// User is missing profile information!
+					// Redirect to edit profile page
+					window.location = "profileEdit.html";
+				}
+			}
+			else {
+				// Snapshot for user not found- redirect to login page
+				window.location = "login.html";
+			}
+		});
+	}
+	
     auth.onAuthStateChanged(function(user) {
         if (user != null) {
             //reference users stored in database
@@ -132,6 +159,7 @@
         var pTitle = document.getElementById('petitionTitleInput').value;
         var pText = document.getElementById('petitionTextInput').value;
 		var uid = auth.currentUser.uid;
+		verifyUserInfoExists(auth.currentUser);
 		// Get username from user id
 	    get(child(ref(db), `/users/${uid}`)).then((snapshot) => {
 			if (snapshot.exists()) {

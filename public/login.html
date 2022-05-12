@@ -74,8 +74,8 @@
 
             //save created user to database
             set(ref(db, 'users/' + user.uid),{
-                email: email
-    
+                email: email,
+				date: new Date(Date.now()).toLocaleString().split(",")[0]
             })
 
             //i want to bring user to complete registration page next 

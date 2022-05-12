@@ -428,34 +428,6 @@
 		  console.log('uploaded');
 		  getDownloadURL(snapshot.ref).then( url => console.log(url));
 		});
-
-			
-        /*const storageRef = (storage, "images/"+imgName);
-		// Note : this line throws TypeError ref._throwIfRoot
-		const uploadTask = uploadBytes(storageRef, imgToUpload);
-
-        uploadTask.on('state-changed', (snapshot)=>{
-            var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            proglab.innerHTML = "Upload "+ progress + "%";
-        },
-        (error) => {
-            alert("Image not uploaded");
-            reject(error);
-        },
-        async ()=> {
-         const imgURL = await uploadTask.snapshot.ref.getDownloadURL();
-         console.log(imgURL);
-         resolve(imgURL);
-        });*/
-        
-        
-        // {
-        //     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL)=>{
-        //         console.log(downloadURL);
-        //         resolve();
-        //     })
-        // });
-
     });
 
         
@@ -534,12 +506,15 @@
                     username: username,
                     country: country,
                 })
-				// Upload the image- if any
-				if (files[0] !== undefined && files[0]['type'].split('/')[0] === 'image') {
-					uploadPhoto(user);
-				}
-				else {
-					alert("Unrecognized filetype");
+				
+				if (files[0] !== undefined) {
+					// Upload the image- if any
+					if (files[0]['type'].split('/')[0] === 'image') {
+						uploadPhoto(user);
+					}
+					else {
+						alert("Unrecognized filetype");
+					}
 				}
                
             }
