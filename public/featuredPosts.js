@@ -70,7 +70,7 @@ function signPetition(postNumber, postId) {
 	* @param user {Object} User to lookup
 **/
 void verifyUserInfoExists(user) {
-	get(child(dbRef, `users/${userId}`)).then((snapshot) => {
+get(child(dbRef, `users/${user.uid}`)).then((snapshot) => {
 		// Check if the user exists
 		if (snapshot.exists()) {
 			var values = snapshot.val();
