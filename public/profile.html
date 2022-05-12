@@ -54,7 +54,10 @@
     <h1></h1>
 
     <div class="profile_box">
-        <img id="profilePic";>
+        <img id="profilePic"   
+			width="600"
+  			height="400"
+  			style="width: 600px; height: 400px;">
         <div id="profile_edit_button"></div>
         <p id = "username">Username</p>
         <p id = "location">Location</p>
@@ -137,7 +140,7 @@
                     const userLocation = snapshot.val().country;
                     const joinDate = snapshot.val().date;
                    
-                    getDownloadURL(ref_storage(storage, 'images/handsome_squidward.png'))
+                    getDownloadURL(ref_storage(storage, `images/${id}`))
                         .then((url) => {
                             img.setAttribute('src', url);
                         })
