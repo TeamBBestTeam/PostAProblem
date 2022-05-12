@@ -57,7 +57,7 @@
                 </h1>
 
             </div>
-            <form class="userinputarea" , action="register.html">
+            <form class="userinputarea"><!-- , action="register.html">-->
                 <label for="fname">First Name</label>
                 <input type="text" id="fname" name="firstname" placeholder="First Name">
 
@@ -69,6 +69,10 @@
 
                 <label for="country">Country</label>
                 <input type="text" id="country" name="country" placeholder="Country">
+
+                <label>Image Name</label> <input type="text" id="namebox"> <label id="extlab"></label> <br><br>
+                <img id="myimg"> <label id="upprogress"></label> <br><br>
+                <input type="file" id="input">
 
                 <input type="button" value="Save" id="submitBtn">
             </form>
@@ -105,7 +109,7 @@
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    import { getStorage, ref as ref_storage, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-storage.js";
+    import { getStorage, ref as ref_storage, getDownloadURL, uploadBytesResumable, uploadBytes } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-storage.js";
     import { getDatabase, ref as ref_db, set, child, update, remove, onValue }
         from "https://www.gstatic.com/firebasejs/9.6.8/firebase-database.js";
 
@@ -115,8 +119,91 @@
     var testBtn = document.getElementById('test');
     var submitBtn = document.getElementById('submitBtn');
     var logInBtn = document.getElementById('login/logout');
-    const storage = getStorage();
-    const profilePicRef = (storage, 'images/profileSample.jpg');
+
+    var files = [];
+    var reader = new FileReader();
+
+    var namebox = document.getElementById('namebox');
+    var extlab = document.getElementById('extlab');
+    var myimg = document.getElementById('myimg');
+    var proglab = document.getElementById('upprogress');
+
+
+    //when photo selected from files
+    input.onchange = e => {
+        files = e.target.files;
+        console.log("file selected");
+
+        var extension = GetFileExt(files[0]);
+        var name = GetFileName(files[0]);
+
+        namebox.value = name;
+        extlab.innerHTML = extension;
+
+        reader.readAsDataURL(files[0]);
+    }
+
+    reader.onload = function() {
+        myimg.src = reader.result;
+    }
+
+
+    function GetFileExt(file) {
+        var temp = file.name.split('.');
+        var ext = temp.slice((temp.length-1), temp.length);
+        return '.' + ext[0];
+    }
+
+    function GetFileName(file) {
+        var temp = file.name.split('.');
+        var fname = temp.slice(0,-1).join('.');
+        return fname;
+    }
+
+    //function to push photo to firebase
+    async function uploadPhoto() {
+        return new Promise((resolve, reject)=> {
+
+        var imgToUpload = files[0];
+
+        var imgName = namebox.value;
+
+        const metaData = {
+            contentType: imgToUpload.type
+        }
+
+        const storage = getStorage();
+        const storageRef = (storage, "images/"+imgName);
+        const uploadTask = uploadBytes(storageRef, imgToUpload);
+
+        uploadTask.on('state-changed', (snapshot)=>{
+            var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            proglab.innerHTML = "Upload "+ progress + "%";
+        },
+        (error) => {
+            alert("Image not uploaded");
+            reject(error);
+        },
+        async ()=> {
+         const imgURL = await uploadTask.snapshot.ref.getDownloadURL();
+         console.log(imgURL);
+         resolve(imgURL);
+        });
+        
+        
+        // {
+        //     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL)=>{
+        //         console.log(downloadURL);
+        //         resolve();
+        //     })
+        // });
+
+    });
+
+        
+    }
+
+    
  
 
     auth.onAuthStateChanged(function (user) {
@@ -141,21 +228,7 @@
             logInBtn.innerText = "Login";
         }
     });
-    var files = []
-    var reader = new FileReader();
-    var input = document.createElement('input');
-    input.type = 'file';
-    input.onchange = e => {
-        files = e.target.files;
-
-        var entension = GetFileName(files[0]);
-
-        reader.readAsDataURL(files[0]);
-    }
-
-    reader.onload = function () {
-        myimg.src = reader.result;
-    }
+    
 
 
     //get users information and save to firebase
@@ -175,6 +248,7 @@
                     username: username,
                     country: country,
                 })
+
                
             }
             else {
@@ -182,8 +256,9 @@
             }
         });
         alert("Information Saved");
+        uploadPhoto();
         //bring user back to profile when new information saved
-        window.location = 'profile.html';
+        //window.location = 'profile.html';
     });
 
     logInBtn.addEventListener("click", (e) => {
