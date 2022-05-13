@@ -427,7 +427,10 @@
 		uploadBytes(storageRef, imgToUpload).then( (snapshot) => {
 		  console.log('uploaded');
 		  getDownloadURL(snapshot.ref).then( url => console.log(url));
+		  //bring user back to profile when new information saved
+		  window.location = 'profile.html';
 		});
+
     });
 
         
@@ -530,7 +533,13 @@
 					}
 					else {
 						alert("Unrecognized filetype");
+						//bring user back to profile when new information saved
+						window.location = 'profile.html';
 					}
+				}
+				else {
+					// No file added- all information should be uploaded
+					window.location = 'profile.html';
 				}
                
             }
@@ -538,11 +547,10 @@
                 console.log("not logged in");
             }
         });
-        
+		
         
 		
-        //bring user back to profile when new information saved
-        window.location = 'profile.html';
+        
     });
 
     logInBtn.addEventListener("click", (e) => {
