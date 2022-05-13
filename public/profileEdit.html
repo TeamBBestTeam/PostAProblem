@@ -379,6 +379,7 @@
     var proglab = document.getElementById('upprogress');
 
 
+
     //when photo selected from files
     input.onchange = e => {
         files = e.target.files;
@@ -439,14 +440,27 @@
         if (user != null) {
             //reference users stored in database
             var userRef = ref_db(db, "users/" + user.uid);
+
+		
+
         
             onValue(userRef, (snapshot) => {
+
+				//only populate fields with pre-existing information if the user already has the information saved in the database
+				//snapshot.size is the number of children for that user in the database
+				//when account first created children should = 2 (email and date)
+				if(snapshot.size > 1) {	
                  
                 //when user comes to profile edit page it should pre-populate input fields with current information
                 document.getElementById("fname").value = snapshot.val().firstname;
                 document.getElementById("lname").value = snapshot.val().lastname;
                 document.getElementById("username").value = snapshot.val().username;
                 document.getElementById("country").value = snapshot.val().country;
+
+				}
+
+				
+				
             });
             logInBtn.innerText = "Logout";
 
@@ -465,6 +479,7 @@
         var lName = document.getElementById('lname').value;
         var username = document.getElementById('username').value;
         var country = document.getElementById('country').value;
+		
 
         auth.onAuthStateChanged(function (user) {
             if (user != null) {
@@ -504,6 +519,8 @@
                     lastname: lName,
                     username: username,
                     country: country,
+					email: user.email,
+					date: new Date(Date.now()).toLocaleString().split(",")[0]
                 })
 				
 				if (files[0] !== undefined) {
