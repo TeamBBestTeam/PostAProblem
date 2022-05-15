@@ -69,21 +69,26 @@
         .then((userCredential) => {
             // Signed in 
             const user = userCredential.user;
-            alert('user created');
+            
             console.log(user.uid);
 
             //save created user to database
             set(ref(db, 'users/' + user.uid),{
+				firstname: "",
+				lastname: "",
+				username: "",
+				country: "",
                 email: email,
-				//date: new Date(Date.now()).toLocaleString().split(",")[0]
-            })
-
-            //i want to bring user to complete registration page next 
-            auth.onAuthStateChanged(user => {
-                if(user) {
-                    window.location = 'profileEdit.html';
-                }
-            });
+				date: new Date(Date.now()).toLocaleString().split(",")[0]
+            }).then(function() {
+				// bring user to profile edit page next 
+	            auth.onAuthStateChanged(user => {
+	                if(user) {
+						alert('user created');
+	                    window.location = 'profileEdit.html';
+	                }
+	            });
+			});
             
         })
         .catch((error) => {
