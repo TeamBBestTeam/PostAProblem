@@ -55,7 +55,7 @@
             <div class="petition-area" id="petition-area">
               <textarea type="text" id="petitionTextInput" name="petitionTextInput" placeholder="Write you petition here..."></textarea>
             </div>
-            <input type="submit" class="postButton" width=20% value="Post" id="postPetition" onclick="petitionSubmit()">
+            <input type="submit" class="postButton" width=20% value="Post" id="postPetition">
           </form>
         </div>
 
@@ -160,8 +160,8 @@
         var pText = document.getElementById('petitionTextInput').value;
 		
 		// Verify values have enough content
-		if (pTitle.split(" ").length < 2 || pText.split(" ").length < 3 ) {
-			alert("Be more descriptive! At least 3 words are needed!");
+		if (pTitle.length < 5 || pText.length < 5 ) {
+			alert("Try being more descriptive!");
 			return;
 		}
 	  	else {
@@ -171,12 +171,11 @@
 		    get(child(ref(db), `/users/${uid}`)).then((snapshot) => {
 				if (snapshot.exists()) {
 					var username = snapshot.val().username;
-					console.log("User:", username);
-					console.log(pTitle);
-					console.log(pText);
 	
 					// Save petition
 					savePetition(pTitle, pText, username);
+					alert("Your petition has been created.");
+  					location.href = "index.html";
 				}
 			});
 	  	}
