@@ -159,28 +159,27 @@
         var pTitle = document.getElementById('petitionTitleInput').value;
         var pText = document.getElementById('petitionTextInput').value;
 		
-		// Verify values are not blank
-		var exp = new RegExp("^(\S+[^\n\S\.]){3,}.*$");
-		if (!exp.test(pTitle) || !exp.test(pText) ) {
+		// Verify values have enough content
+		if (pTitle.split(" ").length < 2 || pText.split(" ").length < 3 ) {
 			alert("Be more descriptive! At least 3 words are needed!");
 			return;
 		}
-		var uid = auth.currentUser.uid;
-		verifyUserInfoExists(auth.currentUser);
-		// Get username from user id
-	    get(child(ref(db), `/users/${uid}`)).then((snapshot) => {
-			if (snapshot.exists()) {
-				var username = snapshot.val().username;
-				console.log("User:", username);
-				console.log(pTitle);
-				console.log(pText);
-
-				// Save petition
-				savePetition(pTitle, pText, username);
-			}
-		});
-
-
+	  	else {
+		  	var uid = auth.currentUser.uid;
+			verifyUserInfoExists(auth.currentUser);
+			// Get username from user id
+		    get(child(ref(db), `/users/${uid}`)).then((snapshot) => {
+				if (snapshot.exists()) {
+					var username = snapshot.val().username;
+					console.log("User:", username);
+					console.log(pTitle);
+					console.log(pText);
+	
+					// Save petition
+					savePetition(pTitle, pText, username);
+				}
+			});
+	  	}
       }
 
       // Get form values
