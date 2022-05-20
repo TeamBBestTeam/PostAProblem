@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:ital@1&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+    <header>
+        <!--NavBar Section-->
+        <div class="navbar">
+            <nav class="navigation hide" id="navigation">
+                <span class="close-icon" id="close-icon" onclick="showIconBar()"><i class="fa fa-close"></i></span>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html">Home</a></li>
+                    <li class="nav-item"><a href="posts.html">Posts</a></li>
+                    <li class="nav-item"><a href="about.html">About</a></li>
+                    <li class="nav-item"><a href="profile.html">Profile</a></li>
+                </ul>
+            </nav>
+            <a class="bar-icon" id="iconBar" onclick="hideIconBar()"><i class="fa fa-bars"></i></a>
+            <div class="brand">Post-A-Problem</div>
+            <div class="login">
+                <button id="login/logout">
+                    <a href="login.html">Login</a>
+                </button>
+                <button>
+                    <a href="login.html">Sign Up</a>
+                </button>
+            </div>
+        </div>
+    </header>
+    <!--SearchBox Section-->
+    <div class="search-box">
+        <div>
+            <select name="" id="dropdown">
+                <option value="Everything">Everything</option>
+                <option value="Titles">Titles</option>
+                <option value="Descriptions">Descriptions</option>
+            </select>
+            <input type="text" name="q" id="searchBar" , placeholder="search ..." />
+            <button id="searchBtn"><i class="fa fa-search"></i></button>
+        </div>
+    </div>
+    <!--Body-->
+    <h1></h1>
+
+    <div class="profile_box">
+        <img id="profilePic"   
+			width="600"
+  			height="400"
+  			style="width: 600px; height: 400px;">
+        <div id="profile_edit_button"></div>
+        <p id = "username">Username</p>
+        <p id = "location">Location</p>
+        <p id = "join_date"></p>
+
+    </div>
+   
+    <!--Footer-->
+    <footer>
+        <span>&copy; The Best Team | All Rights Reserved</span>
+    </footer>
+    <script src="main.js"></script>
+</body>
+
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-app.js";
+    import { getStorage, ref as ref_storage, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-storage.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-analytics.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyD91WOXEuZZFKr3YqjUN7m_hVEpW_8RFxw",
+        authDomain: "post-a-problem-spring-2022.firebaseapp.com",
+        databaseURL: "https://post-a-problem-spring-2022-default-rtdb.firebaseio.com",
+        projectId: "post-a-problem-spring-2022",
+        storageBucket: "post-a-problem-spring-2022.appspot.com",
+        messagingSenderId: "38461578684",
+        appId: "1:38461578684:web:1125dfd7bf60ad98cb1fb9",
+        measurementId: "G-LPZ4LGS9X1"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    import { getDatabase, ref as ref_database, set, child, update, remove, onValue }
+        from "https://www.gstatic.com/firebasejs/9.6.8/firebase-database.js";
+
+    const db = getDatabase();
+    const auth = getAuth();
+    const user = auth.currentUser; 
+
+    //access storage
+    
+    const storage = getStorage();
+    const img = document.getElementById("profilePic");
+    var logInBtn = document.getElementById('login/logout');
+
+
+
+    auth.onAuthStateChanged(function (user) {
+            if (user != null) {
+				var id = user.uid;
+				var url = window.location.href;
+
+				// Allow queries to be parsed
+				// Must be in format: .../profile.html?id=UserId"
+				if (url.includes("profile.html?id=")){
+					id = url.split("profile.html?id=")[1];
+				}
+				
+				// Add edit profile button if this is this user's profile
+				if (id == user.uid) {
+				document.getElementById("profile_edit_button").innerHTML = 							`<button id="editProfile">
+						<a href="profileEdit.html">Edit Profile</a>
+					</button>`
+				}
+				
+                //reference users stored in database
+                var userRef = ref_database(db, "users/" + id);
+                onValue(userRef, (snapshot) => {
+					// If the specified ID in the URL does not exist
+					if (!snapshot.exists()){ 
+						// Bring user to 404 page
+						window.location.href = "404.html";
+						return;
+					}
+                    //get username of currently signed in user
+                    const userName = snapshot.val().username;
+                    const userLocation = snapshot.val().country;
+                    const joinDate = snapshot.val().date;
+                   
+                    getDownloadURL(ref_storage(storage, `images/${id}`))
+                        .then((url) => {
+							// Use custom profile picture
+                            img.setAttribute('src', url);
+                        }, reject => {
+							// Use default picture
+							getDownloadURL(ref_storage(storage, `images/handsome_squidward.png`))
+	                        	.then((url) => {
+	                            	img.setAttribute('src', url);
+	                        	})
+						})
+                    
+
+                 
+                    //display user information under profile picture
+                    //document.getElementById("profilePic").src=storage+profilePic;
+                    document.getElementById("username").innerHTML = ""+userName;
+                    document.getElementById("location").innerHTML = "Home Country: "+userLocation;
+                    document.getElementById("join_date").innerHTML = "Member since: "+joinDate;
+
+                    logInBtn.innerText = "Logout";
+
+                });
+
+            }
+            else {
+                console.log("not logged in");
+                logInBtn.innerText = "Login";
+                window.location = 'login.html';
+            }
+        });
+
+         logInBtn.addEventListener("click", (e) => {
+                auth.onAuthStateChanged(function (user) {
+                    //if user is signed in, log current user out
+                    if (user != null) {
+
+                        signOut(auth).then(() => {
+                            //notify user that they have successfully logged out
+                            alert('User logged out');
+                            //refresh page
+                            window.location = 'index.html';
+                        }).catch((error) => {
+                            // An error happened.
+                            alert('error');
+                        });
+                    }
+
+                    //otherwise bring user to login screen to login
+                    else {
+                        window.location = 'login.html';
+                    }
+                });
+            });
+
+    
+
+</script>
+
+</html>

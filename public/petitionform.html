@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-A-Problem</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:ital@1&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <!--NavBar Section-->
+        <div class="navbar">
+            <nav class="navigation hide" id="navigation">
+                <span class="close-icon" id="close-icon" onclick="showIconBar()"><i class="fa fa-close"></i></span>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html">Home</a></li>
+                    <li class="nav-item"><a href="posts.html">Posts</a></li>
+                    <li class="nav-item"><a href="about.html">About</a></li>
+                    <li class="nav-item"><a href="profile.html">Profile</a></li>
+                </ul>
+
+            </nav>
+            <a class="bar-icon" id="iconBar" onclick="hideIconBar()"><i class="fa fa-bars"></i></a>
+            <div class="brand">Post-A-Problem</div>
+            <div class="login">
+                <button id="login/logout">
+                    <a href="login.html"></a>
+                </button>
+                <button>
+                    <a href="login.html">Sign Up</a>
+                </button>
+                </div>
+        </div>
+
+    <div class="container">
+        <!--Intro-->
+        <div class="home">
+            <h1 class="title_area", id="create_petition_title">
+                <span class="create_petition_text" >
+                  Create a Petition
+                </span>
+            </h1>
+
+        </div>
+        <form id="createApetition" class="petitioninputarea", action="index.html">
+            <label for="petitionTitleLabel">Petition Title</label>
+            <br>
+            <input type="text" id="petitionTitleInput" name="petitionTitleInput" placeholder="Petition Title">
+            <br>
+            <label for="petitionTextLabel">Write Your Petition:</label>
+            <div class="petition-area" id="petition-area">
+              <textarea type="text" id="petitionTextInput" name="petitionTextInput" placeholder="Write you petition here..."></textarea>
+            </div>
+            <input type="submit" class="postButton" width=20% value="Post" id="postPetition">
+          </form>
+        </div>
+
+    <footer>
+        <span>&copy;  The Best Team | All Rights Reserved</span>
+    </footer>
+    <script src="main.js"></script>
+</body>
+
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-analytics.js";
+    import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} from "https://www.gstatic.com/firebasejs/9.6.8/firebase-auth.js";
+
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyD91WOXEuZZFKr3YqjUN7m_hVEpW_8RFxw",
+      authDomain: "post-a-problem-spring-2022.firebaseapp.com",
+      databaseURL: "https://post-a-problem-spring-2022-default-rtdb.firebaseio.com",
+      projectId: "post-a-problem-spring-2022",
+      storageBucket: "post-a-problem-spring-2022.appspot.com",
+      messagingSenderId: "38461578684",
+      appId: "1:38461578684:web:1125dfd7bf60ad98cb1fb9",
+      measurementId: "G-LPZ4LGS9X1"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    import {getDatabase, ref, set, child, update, remove, onValue, push, get}
+    from "https://www.gstatic.com/firebasejs/9.6.8/firebase-database.js";
+
+    const db = getDatabase();
+    const auth = getAuth();
+    const user = auth.currentUser;
+    var testBtn = document.getElementById('test');
+    var submitBtn = document.getElementById('submitBtn');
+    var logInBtn = document.getElementById('login/logout');
+
+	/**
+		* Verifies if a user's information is complete on profileEdit.html
+		* If the user is missing information, will redirect them to profileEdit page
+		* @param user {Object} User to lookup
+		* @return {bool} True if user is logged in and their profile info is complete
+	**/
+	function verifyUserInfoExists(user) {
+		get(child(ref(db), `users/${user.uid}`)).then((snapshot) => {
+			// Check if the user exists
+			if (snapshot.exists()) {
+				var values = snapshot.val();
+
+				if (values.country === "" ||
+					values.firstname === "" ||
+					values.lastname === "" ||
+					values.username === "") {
+
+					alert("Missing profile information!");
+					// User is missing profile information!
+					// Redirect to edit profile page
+					window.location = "profileEdit.html";
+					return false;
+				}
+			}
+			else {
+				// Snapshot for user not found- redirect to login page
+				window.location = "login.html";
+				return false;
+			}
+		});
+		// user is logged in and can make their post, continue
+		return true;
+	}
+	
+    auth.onAuthStateChanged(function(user) {
+        if (user != null) {
+            //reference users stored in database
+            var userRef = ref(db, "users/" + user.uid);
+            onValue(userRef, (snapshot) => {
+                //get username of currently signed in user
+                const data = snapshot.val().username;
+                console.log(data);
+                logInBtn.innerText = "Logout";
+                // Create a petition welcome title
+                document.getElementById('create_petition_title')
+					.getElementsByTagName('span')[0]
+					.innerHTML = 'Create a Petition, ' + data;
+            });
+
+        }
+         else {
+            console.log("not logged in");
+            logInBtn.innerText = "Login";
+        }
+      });
+
+      // Petition Form submit
+      document.getElementById('createApetition').addEventListener('submit', createPetition);
+
+      // Submit form
+      function createPetition(e){
+        e.preventDefault();
+
+        // Get values
+        var pTitle = document.getElementById('petitionTitleInput').value;
+        var pText = document.getElementById('petitionTextInput').value;
+		
+		// Verify values have enough content
+		if (pTitle.length < 5 || pText.length < 5 ) {
+			alert("Try being more descriptive!");
+			return;
+		}
+	  	else {
+		  	
+			// Check if user's information is correct
+			if (auth.currentUser != undefined && verifyUserInfoExists(auth.currentUser)){
+				var uid = auth.currentUser.uid;
+
+				// Get username from user id
+			    get(child(ref(db), `/users/${uid}`)).then((snapshot) => {
+					if (snapshot.exists()) {
+						var username = snapshot.val().username;
+		
+						// Save petition and exit
+						var key = savePetition(pTitle, pText, username);
+						alert("Your petition has been created.");
+	  					location.href = `petition.html?id=${key}`;
+					}
+				});
+			}
+			else {
+				console.log("Cannot post!");
+			}
+	  	}
+      }
+
+      // Get form values
+      function getInputValue(id){
+        return document.getElementById(id).value;
+      }
+
+      // Save petition to firebase
+      function savePetition(title, text, user){
+		
+        // Petition entry
+        const petition = {
+          petitionText: text,
+          petitionTitle: title,
+          username: user,
+          views: 0,
+          votes: {0:""}
+        };
+
+        // Get a key for a new Petition
+        const newPetitionKey = push(child(ref(db), 'petitions')).key;
+		
+        const updates = {};
+        updates['/petitions/' + newPetitionKey] = petition;
+        update(ref(db), updates);
+		  
+		return newPetitionKey;
+      }
+
+      logInBtn.addEventListener("click", (e) => {
+          auth.onAuthStateChanged(function (user) {
+            //if user is signed in, log current user out
+            if (user != null) {
+
+              signOut(auth).then(() => {
+                //notify user that they have successfully logged out
+                alert('User logged out');
+                //refresh page
+                window.location = 'index.html';
+              }).catch((error) => {
+                // An error happened.
+                alert('error');
+              });
+            }
+
+            //otherwise bring user to login screen to login
+            else {
+              window.location = 'login.html';
+            }
+          });
+        });
+  </script>
+</html>

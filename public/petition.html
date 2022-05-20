@@ -20,7 +20,7 @@
                     <li class="nav-item"><a href="index.html">Home</a></li>
                     <li class="nav-item"><a href="posts.html">Posts</a></li>
                     <li class="nav-item"><a href="about.html">About</a></li>
-                    <li class="nav-item"><a href="profile.html">Profile</a></li>
+					<li class="nav-item"><a href="profile.html">Profile</a></li>
                 </ul>
 
             </nav>
@@ -57,25 +57,16 @@
             </h1>
 
         </div>
-        <div class="card">
-            <a href="petitionform.html">Start A Petition</a>
-            <img src="./assets/images/petitionBox.png" alt="petition" width= "250px";>
-        </div>
         <!--Navigation-->
         <div class="navigate">
-            <span><a href="">MyForum - Forums</a> >> <a href="">random subforum</a> >> <a href="">random topic</a></span>
+            <span><a href="">MyForum - Forums</a> >> <a href="">random subforum</a> >> <a href="">random topic</a> >>
+				<a href="" id="postLink"></a></span>
         </div>
-
-        <!--Topic Section-->
-        <div class="topic-container" id="container">
-			<div class="head">
-				<div class="authors">Author</div>
-				<div class="content">Topic: random topic</div>
-			</div>
-		</div>
-		
+		<!--Petition Information-->
+		<div id="petition" class=""></div>
+				
         <!--Comment Area-->
-        <div class="comment-area hide" id="comment-area0">
+        <div class="comment-area hide" id="comment-area">
             <textarea name="comment" id="" placeholder="comment here ... "></textarea>
             <input type="submit" value="submit">
         </div>
@@ -87,6 +78,8 @@
             <input type="submit" value="submit">
         </div>
 
+		<!-- Page Number Area-->
+		<div id="pageNumberArea"></div>
 
 
     </div>
@@ -103,6 +96,11 @@
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-analytics.js";
     import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} from "https://www.gstatic.com/firebasejs/9.6.8/firebase-auth.js";
   
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+  
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
     const firebaseConfig = {
       apiKey: "AIzaSyD91WOXEuZZFKr3YqjUN7m_hVEpW_8RFxw",
       authDomain: "post-a-problem-spring-2022.firebaseapp.com",
@@ -131,14 +129,9 @@
             //reference users stored in database
             var userRef = ref(db, "users/" + user.uid);
             onValue(userRef, (snapshot) => {
-				if (snapshot.val() === null) {
-					window.location = "profileEdit.html";
-				}
                 //get username of currently signed in user
                 const data = snapshot.val().username;
-				if (data === null) {
-					window.location = "profileEdit.html";
-				}
+                console.log(data);
                 //add username to welcome title 
                 document.getElementById('welcome_title').getElementsByTagName('span')[0].innerHTML = 'Welcome, ' + data;
                 
@@ -177,5 +170,5 @@
             });
         });
   </script>
-  <script type="module" src="featuredPosts.js"></script>
+  <script type="module" src="petition.js"></script>
 </html>

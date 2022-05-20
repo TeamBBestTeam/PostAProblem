@@ -6,9 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="toast/toast.css">
     <script src="login.js"></script>
 </head>
 <body>
+    
     
     <div class="loginPage">
         <form class="loginBox" action="login.html" method="POST">
@@ -17,36 +19,143 @@
             </h1>
             <input type="text" name="email" placeholder="E-mail" id="email">
             <input type="password" name="password" placeholder="Password" id="password">
-            <input type="submit" name="" value="Login" onclick="validate()">
+            <input type="button" name="" value="Login" id="login">
+            <input type="button" name="" value="Sign Up" id="signup">
         </form>
     </div>
-
     
+
+    <script src="toast/toast.js"></script>
 </body>
 
+
 <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-analytics.js";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
-  
-    // Your web app's Firebase configuration
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    const firebaseConfig = {
-      apiKey: "AIzaSyD91WOXEuZZFKr3YqjUN7m_hVEpW_8RFxw",
-      authDomain: "post-a-problem-spring-2022.firebaseapp.com",
-      databaseURL: "https://post-a-problem-spring-2022-default-rtdb.firebaseio.com",
-      projectId: "post-a-problem-spring-2022",
-      storageBucket: "post-a-problem-spring-2022.appspot.com",
-      messagingSenderId: "38461578684",
-      appId: "1:38461578684:web:1125dfd7bf60ad98cb1fb9",
-      measurementId: "G-LPZ4LGS9X1"
-    };
-  
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-  </script>
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-analytics.js";
+  import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/9.6.8/firebase-auth.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyD91WOXEuZZFKr3YqjUN7m_hVEpW_8RFxw",
+    authDomain: "post-a-problem-spring-2022.firebaseapp.com",
+    databaseURL: "https://post-a-problem-spring-2022-default-rtdb.firebaseio.com",
+    projectId: "post-a-problem-spring-2022",
+    storageBucket: "post-a-problem-spring-2022.appspot.com",
+    messagingSenderId: "38461578684",
+    appId: "1:38461578684:web:1125dfd7bf60ad98cb1fb9",
+    measurementId: "G-LPZ4LGS9X1"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  import {getDatabase, ref, set, child, update, remove, onValue}
+  from "https://www.gstatic.com/firebasejs/9.6.8/firebase-database.js";
+
+  const db = getDatabase();
+  const auth = getAuth();
+  var logInBtn = document.getElementById('login');
+  var signUpBtn = document.getElementById('signup');
+
+  signUpBtn.addEventListener("click", (e) => {
+    var email = document.getElementById('email').value;
+    var password = document.getElementById('password').value;
+
+    //create new user
+    createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            // Signed in 
+            const user = userCredential.user;
+            
+            console.log(user.uid);
+
+            //save created user to database
+            set(ref(db, 'users/' + user.uid),{
+				firstname: "",
+				lastname: "",
+				username: "",
+				country: "",
+                email: email,
+				date: new Date(Date.now()).toLocaleString().split(",")[0]
+            }).then(function() {
+				// bring user to profile edit page next 
+	            auth.onAuthStateChanged(user => {
+	                if(user) {
+						alert('user created');
+	                    window.location = 'profileEdit.html';
+	                }
+	            });
+			});
+            
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            var message;
+            //get error message to be displayed on toast
+            if(email=='' && password=='')
+                message = "Please complete all fields";
+            else if(email=='')
+                message = "Can't leave email field blank";
+            else if(password=='')
+                message = "Can't leave password field blank";
+
+            else 
+                message = getErrorMessage(errorCode);
+            
+            //alert user of incorrect login credentials
+            console.log(errorCode);
+            Toast.show(message,'error');
+            // ..
+        });
+  });
+
+  //login existing user
+  logInBtn.addEventListener("click", (e) => {
+    var email = document.getElementById('email').value;
+    var password = document.getElementById('password').value;
+
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            // Signed in 
+            const user = userCredential.user;
+
+            //bring user to home page when logging in successfully
+            auth.onAuthStateChanged(user => {
+                if(user) {
+                    console.log(user)
+                    window.location = 'index.html';
+                }
+            });
+        // ...
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            var message;
+            //get error message to be displayed on toast
+            if(email=='' && password=='')
+                message = "Please complete all fields";
+            else if(email=='')
+                message = "Can't leave email field blank";
+            else if(password=='')
+                message = "Can't leave password field blank";
+
+            else 
+                message = getErrorMessage(errorCode);
+
+            console.log(errorCode);
+            console.log(message);
+            
+            //alert user of incorrect login credentials
+            Toast.show(message,'error');
+        });
+
+  });
+
+
+
+</script>
 
 </html>
